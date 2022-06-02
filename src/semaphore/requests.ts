@@ -40,7 +40,7 @@ function semaphoreGet<T = any>(url: string): Promise<AxiosResponse<T, any>> {
 
 
 // Semaphore's API often give 500/503 errors. These can be retried.
-function retryRequest(runRequest: () => Promise<AxiosResponse<any>>, retryAmount: number = 10): Promise<AxiosResponse<any>> {
+async function retryRequest(runRequest: () => Promise<AxiosResponse<any>>, retryAmount: number = 10): Promise<AxiosResponse<any>> {
     let retryCount: number = retryAmount;
 
     function innerRetry(response: AxiosResponse<any>): Promise<AxiosResponse<any>> {
@@ -52,5 +52,6 @@ function retryRequest(runRequest: () => Promise<AxiosResponse<any>>, retryAmount
         return new Promise((resolve, _reject) => resolve(response));
     }
 
-    return runRequest().then(innerRetry);
+    const response = await runRequest();
+    return innerRetry(response);
 }
