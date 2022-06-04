@@ -1,46 +1,68 @@
 import * as vscode from 'vscode';
-import axios from 'axios';
 
 import * as types from './semaphore/types';
 import * as requests from './semaphore/requests';
 
 // this method is called when the extension is activated, i.e. when the view is opened
 export function activate(context: vscode.ExtensionContext) {
+	requests.getProjects().then(function (projects: types.Project[]) {
+		const treeProvider = new SemaphoreBranchProvider(projects);
 
-	// Test code
-	requests.getProjects().then(function(projects: types.Project[]) {
-		console.log("RECEIVED PROJECTS!");
-		console.log(projects);
+		let disposable = vscode.window.registerTreeDataProvider("semaphore-ci-current-branch", treeProvider);
+
+		context.subscriptions.push(disposable);
 	});
-
-
-	let disposable = vscode.window.registerTreeDataProvider("semaphore-ci-current-branch", new SemaphoreBranchProvider());
-
-	context.subscriptions.push(disposable);
 }
 
-// this method is called when the extension is deactivated
+/** this method is called when the extension is deactivated */
 export function deactivate() { }
 
-export class SemaphoreBranchProvider implements vscode.TreeDataProvider<TodoNameForTreeItem> {
-	onDidChangeTreeData?: vscode.Event<void | TodoNameForTreeItem | TodoNameForTreeItem[] | null | undefined> | undefined;
+export class SemaphoreBranchProvider implements vscode.TreeDataProvider<SemaphoreTreeItem> {
+	constructor(public readonly projects: types.Project[]){	};
 
-	getTreeItem(element: TodoNameForTreeItem): vscode.TreeItem | Thenable<vscode.TreeItem> {
-		return element;
-	}
-	getChildren(element?: TodoNameForTreeItem): vscode.ProviderResult<TodoNameForTreeItem[]> {
+	onDidChangeTreeData?: vscode.Event<void | SemaphoreTreeItem | SemaphoreTreeItem[] | null | undefined> | undefined;
+
+	getChildren(element?: SemaphoreTreeItem): vscode.ProviderResult<SemaphoreTreeItem[]> {
+		// Top level: List workspaces
 		if (!element) {
-			return [new TodoNameForTreeItem("hello", vscode.TreeItemCollapsibleState.Expanded)];
+			let workspaceFolders = vscode.workspace.workspaceFolders;
+			if (!workspaceFolders || workspaceFolders.length === 0) {
+				return [];
+			}
+			let res: SemaphoreTreeItem[] = [];
+
+			workspaceFolders.forEach(workspaceFolder => {
+				res.push(new WorkspaceDirectoryTreeItem(workspaceFolder));
+			});
+
+			return res;
 		}
+
+		// Second level: List workflows/pipelines. TODO
+		if (element instanceof WorkspaceDirectoryTreeItem) {
+		}
+
 		return [];
 	}
 
+	getTreeItem(element: SemaphoreTreeItem): vscode.TreeItem | Thenable<vscode.TreeItem> {
+		return element;
+	}
+
+	/** Get the Semaphore project belonging to a workspace folder */
+	getProjectOfWorkspaceFolder(_workspaceFolder: vscode.WorkspaceFolder): types.Project | null {
+		return null;
+	}
 }
 
-class TodoNameForTreeItem extends vscode.TreeItem {
-	constructor(public readonly label: string, public readonly collapsibleState: vscode.TreeItemCollapsibleState) {
-		super(label, collapsibleState);
-		this.tooltip = "bananas";
-		this.description = "oh yeah";
+/**
+ *  Generic class for everything that's put in the tree view.
+*/
+class SemaphoreTreeItem extends vscode.TreeItem {
+}
+
+class WorkspaceDirectoryTreeItem extends SemaphoreTreeItem {
+	constructor(public readonly workspaceFolder: vscode.WorkspaceFolder) {
+		super(workspaceFolder.name, vscode.TreeItemCollapsibleState.Expanded);
 	}
 }

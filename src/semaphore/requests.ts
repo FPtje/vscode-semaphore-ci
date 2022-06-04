@@ -3,6 +3,7 @@ import * as vscode from 'vscode';
 
 import * as types from './types';
 
+/** Get the projects belonging to the list of organisations as configured in the settings. */
 export async function getProjects(): Promise<types.Project[]> {
     let organisations: string[] = vscode.workspace.getConfiguration("semaphore-ci").organisations;
     let promises: Promise<AxiosResponse<types.Project[], any>>[] = [];
@@ -20,7 +21,7 @@ export async function getProjects(): Promise<types.Project[]> {
     return projects;
 };
 
-// Kinds of resources that can be accessed through the semaphore API
+/** Kinds of resources that can be accessed through the semaphore API */
 enum ResourceName {
     projects = "projects",
     workflows = "plumber-workflows",
@@ -33,25 +34,39 @@ function baseUrl(organisation: string, resourceName: ResourceName): string {
     return `https://${organisation}.semaphoreci.com/api/v1alpha/${resourceName}`;
 }
 
-function semaphoreGet<T = any>(url: string): Promise<AxiosResponse<T, any>> {
+function semaphoreGet<T = any>(url: string, params: object = {}): Promise<AxiosResponse<T, any>> {
     let apiKey = vscode.workspace.getConfiguration("semaphore-ci").apiKey;
-    return retryRequest(() => axios.get<T>(url, { headers: { authorization: `Token ${apiKey}` } }));
+    return retryRequest(() => axios.get<T>(url, { headers: { authorization: `Token ${apiKey}` }, params: params }));
 };
 
 
-// Semaphore's API often give 500/503 errors. These can be retried.
+/** Semaphore's API often give HTTP 5XX errors. These can be retried. */
 async function retryRequest(runRequest: () => Promise<AxiosResponse<any>>, retryAmount: number = 10): Promise<AxiosResponse<any>> {
     let retryCount: number = retryAmount;
 
     function innerRetry(response: AxiosResponse<any>): Promise<AxiosResponse<any>> {
         if (response.status >= 500 && response.status < 600) {
             retryCount -= retryCount;
-            runRequest().then(innerRetry);
+            console.log(`Request failed with status code ${response.status}. Retrying, ${retryCount} attempts left.`);
+
+            if (retryCount <= 1) {
+                runRequest().then(innerRetry);
+            }
+            else {
+                runRequest();
+            }
         }
 
-        return new Promise((resolve, _reject) => resolve(response));
+        return Promise.resolve(response);
     }
 
     const response = await runRequest();
     return innerRetry(response);
 }
+
+
+// Scratchpad:
+// https://channable.semaphoreci.com/api/v1alpha/pipelines/c5d119bb-c8b6-4204-ac5d-e544ba749e8d?detailed=true
+
+// https://channable.semaphoreci.com/api/v1alpha/plumber-workflows?project_id=6152b604-a7af-499c-8215-8c9da2994cf8&branch_name=testing
+// Note: Has a LOT of timeouts!

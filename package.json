@@ -56,6 +56,11 @@
 				"view": "semaphore-ci-current-branch",
 				"contents": "Get started with Semaphore CI by configuring your API key and connected organisations.\n[Open settings](command:workbench.action.openSettings?%5B%22semaphoreci%22%5D)",
 				"when": "config.semaphore-ci.apiKey == '' || config.semaphore-ci.organisations == []"
+			},
+			{
+				"view": "semaphore-ci-current-branch",
+				"contents": "You have not yet opened a folder. Please open a folder in the Explorer view.",
+				"when": "config.semaphore-ci.apiKey != '' && config.semaphore-ci.organisations != [] && workspaceFolderCount == 0"
 			}
 		]
 	},
