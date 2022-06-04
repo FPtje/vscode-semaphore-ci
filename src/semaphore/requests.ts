@@ -31,6 +31,15 @@ export async function getPipelines(organisation: string, projectId: string, bran
     return response.data;
 }
 
+/** The details of a pipeline, which contains data about the blocks and jobs */
+export async function getPipelineDetails(organisation: string, pipelineId: string): Promise<types.PipelineDetails> {
+    const base = baseUrl(organisation, ResourceName.pipelines);
+    const url = `${base}/${pipelineId}`;
+
+    const response = await semaphoreGet<types.PipelineDetails>(url, { detailed: "true" });
+    return response.data;
+}
+
 /** Kinds of resources that can be accessed through the semaphore API */
 enum ResourceName {
     projects = "projects",

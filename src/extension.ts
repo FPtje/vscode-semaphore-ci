@@ -39,9 +39,14 @@ export class SemaphoreBranchProvider implements vscode.TreeDataProvider<Semaphor
 			return res;
 		}
 
-		// Second level: List workflows/pipelines.
+		// Second level: List pipelines
 		if (element instanceof WorkspaceDirectoryTreeItem) {
-			return this.getWorkflows(element);
+			return this.getPipelines(element);
+		}
+
+		// Third level: Pipeline details
+		if (element instanceof PipelineTreeItem) {
+			return this.getPipelineDetails(element);
 		}
 
 		return [];
@@ -51,7 +56,7 @@ export class SemaphoreBranchProvider implements vscode.TreeDataProvider<Semaphor
 		return element;
 	}
 
-	async getWorkflows(element: WorkspaceDirectoryTreeItem): Promise<SemaphoreTreeItem[]> {
+	async getPipelines(element: WorkspaceDirectoryTreeItem): Promise<SemaphoreTreeItem[]> {
 		const project = await this.getProjectOfWorkspaceFolder(element);
 
 		if (!project) {
@@ -66,7 +71,14 @@ export class SemaphoreBranchProvider implements vscode.TreeDataProvider<Semaphor
 
 		const pipelines = await requests.getPipelines(organisation, projectId, branch.current);
 
-		return pipelines.map((pipeline) => new PipelineTreeItem(pipeline));
+		return pipelines.map((pipeline) => new PipelineTreeItem(project, pipeline));
+	}
+
+	async getPipelineDetails(element: PipelineTreeItem): Promise<SemaphoreTreeItem[]> {
+		const organisation = element.project.spec.repository.owner;
+
+		const pipelineDetails = await requests.getPipelineDetails(organisation, element.pipeline.ppl_id);
+		return [];
 	}
 
 	/** Get the Semaphore project belonging to a workspace folder. It looks at
@@ -121,7 +133,10 @@ class NoSuitableProjectTreeItem extends SemaphoreTreeItem {
 }
 
 class PipelineTreeItem extends SemaphoreTreeItem {
-	constructor(public readonly pipeline: types.Pipeline) {
+	constructor(
+		public readonly project: types.Project,
+		public readonly pipeline: types.Pipeline
+	) {
 		const timestamp = new Date(pipeline.created_at.seconds * 1000);
 
 		const months = (timestamp.getMonth() + 1).toString().padStart(2, "0");
@@ -134,4 +149,8 @@ class PipelineTreeItem extends SemaphoreTreeItem {
 
 		this.description = pipeline.commit_message;
 	}
+}
+
+class PipelineDetailsTreeItem extends SemaphoreTreeItem {
+
 }
