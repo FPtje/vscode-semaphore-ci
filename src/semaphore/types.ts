@@ -46,12 +46,17 @@ export type CreatedAt = {
 };
 
 export type Pipeline = {
+    /** pipeline id */
+    ppl_id: string;
     state: PipelineState;
     result: PipelineResult;
-    created_at: string;
+    created_at: CreatedAt;
     commit_message: string;
-    // Note that blocks are only sent by the API when ?detailed=true is passed
-    // in the URL.
+};
+
+/** The result of requesting an individual pipeline with the query parameter detailed=true */
+export type PipelineDetails = {
+    pipeline: Pipeline;
     blocks: Block[];
 };
 

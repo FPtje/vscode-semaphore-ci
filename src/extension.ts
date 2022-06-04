@@ -64,9 +64,9 @@ export class SemaphoreBranchProvider implements vscode.TreeDataProvider<Semaphor
 
 		if (branch.detached) { return []; }
 
-		const workflows = await requests.getWorkflows(organisation, projectId, branch.current);
+		const pipelines = await requests.getPipelines(organisation, projectId, branch.current);
 
-		return workflows.map((workflow) => new WorkflowTreeItem(workflow));
+		return pipelines.map((pipeline) => new PipelineTreeItem(pipeline));
 	}
 
 	/** Get the Semaphore project belonging to a workspace folder. It looks at
@@ -120,9 +120,9 @@ class NoSuitableProjectTreeItem extends SemaphoreTreeItem {
 	}
 }
 
-class WorkflowTreeItem extends SemaphoreTreeItem {
-	constructor(public readonly workflow: types.Workflow) {
-		const timestamp = new Date(workflow.created_at.seconds * 1000);
+class PipelineTreeItem extends SemaphoreTreeItem {
+	constructor(public readonly pipeline: types.Pipeline) {
+		const timestamp = new Date(pipeline.created_at.seconds * 1000);
 
 		const months = (timestamp.getMonth() + 1).toString().padStart(2, "0");
 		const days = (timestamp.getDay() + 1).toString().padStart(2, "0");
@@ -131,5 +131,7 @@ class WorkflowTreeItem extends SemaphoreTreeItem {
 		const formatted = `${timestamp.getFullYear()}-${months}-${days} ${hour}:${minute}`;
 
 		super(formatted, vscode.TreeItemCollapsibleState.Collapsed);
+
+		this.description = pipeline.commit_message;
 	}
 }

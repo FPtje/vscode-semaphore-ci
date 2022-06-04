@@ -22,12 +22,12 @@ export async function getProjects(): Promise<types.Project[]> {
     return projects;
 };
 
-/** Get the workflows belonging to a given organisation's project and branch */
-export async function getWorkflows(organisation: string, projectId: string, branchName: string): Promise<types.Workflow[]> {
-    const url = baseUrl(organisation, ResourceName.workflows);
+/** Get the pipelines belonging to a given organisation's project and branch */
+export async function getPipelines(organisation: string, projectId: string, branchName: string): Promise<types.Pipeline[]> {
+    const url = baseUrl(organisation, ResourceName.pipelines);
 
     // eslint-disable-next-line @typescript-eslint/naming-convention
-    const response = await semaphoreGet<types.Workflow[]>(url, { project_id: projectId, branch_name: branchName });
+    const response = await semaphoreGet<types.Pipeline[]>(url, { project_id: projectId, branch_name: branchName });
     return response.data;
 }
 
