@@ -5,7 +5,7 @@ import * as types from './types';
 
 /** Get the projects belonging to the list of organisations as configured in the settings. */
 export async function getProjects(): Promise<types.Project[]> {
-    let organisations: string[] = vscode.workspace.getConfiguration("semaphore-ci").organisations;
+    const organisations: string[] = vscode.workspace.getConfiguration("semaphore-ci").organisations;
     let promises: Promise<AxiosResponse<types.Project[], any>>[] = [];
 
     organisations.forEach(organisation => {
@@ -18,8 +18,18 @@ export async function getProjects(): Promise<types.Project[]> {
     responses.forEach(response => {
         projects = projects.concat(response.data);
     });
+
     return projects;
 };
+
+/** Get the workflows belonging to a given organisation's project and branch */
+export async function getWorkflows(organisation: string, projectId: string, branchName: string): Promise<types.Workflow[]> {
+    const url = baseUrl(organisation, ResourceName.workflows);
+
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    const response = await semaphoreGet<types.Workflow[]>(url, { project_id: projectId, branch_name: branchName });
+    return response.data;
+}
 
 /** Kinds of resources that can be accessed through the semaphore API */
 enum ResourceName {

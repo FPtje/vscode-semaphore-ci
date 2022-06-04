@@ -41,13 +41,7 @@ export class SemaphoreBranchProvider implements vscode.TreeDataProvider<Semaphor
 
 		// Second level: List workflows/pipelines.
 		if (element instanceof WorkspaceDirectoryTreeItem) {
-			return this.getProjectOfWorkspaceFolder(element.workspaceFolder).then((project): vscode.ProviderResult<SemaphoreTreeItem[]> => {
-				if (!project) {
-					return [new NoSuitableProjectTreeItem()];
-				}
-
-				return [];
-			});
+			return this.getWorkflows(element);
 		}
 
 		return [];
@@ -57,17 +51,34 @@ export class SemaphoreBranchProvider implements vscode.TreeDataProvider<Semaphor
 		return element;
 	}
 
+	async getWorkflows(element: WorkspaceDirectoryTreeItem): Promise<SemaphoreTreeItem[]> {
+		const project = await this.getProjectOfWorkspaceFolder(element);
+
+		if (!project) {
+			return [new NoSuitableProjectTreeItem()];
+		}
+		const organisation = project.spec.repository.owner;
+		const projectId = project.metadata.id;
+
+		const branch = await element.gitRepo.branchLocal();
+
+		if (branch.detached) { return []; }
+
+		const workflows = await requests.getWorkflows(organisation, projectId, branch.current);
+
+		return workflows.map((workflow) => new WorkflowTreeItem(workflow));
+	}
+
 	/** Get the Semaphore project belonging to a workspace folder. It looks at
 	 * the remotes and tries to match them against a project. It returns the
 	 * first project that matches a remote.
 	*/
-	async getProjectOfWorkspaceFolder(workspaceFolder: vscode.WorkspaceFolder): Promise<types.Project | null> {
-		const gitRepo = simpleGit.default(workspaceFolder.uri.fsPath);
-		const isRepo = await gitRepo.checkIsRepo();
+	async getProjectOfWorkspaceFolder(element: WorkspaceDirectoryTreeItem): Promise<types.Project | null> {
+		const isRepo = await element.gitRepo.checkIsRepo();
 
 		if (!isRepo) { return Promise.resolve(null); }
 
-		const remotes = await gitRepo.getRemotes(true);
+		const remotes = await element.gitRepo.getRemotes(true);
 
 		for (let remote of remotes) {
 			const remoteUrl = remote.refs.fetch.toLowerCase();
@@ -93,8 +104,12 @@ class SemaphoreTreeItem extends vscode.TreeItem {
 }
 
 class WorkspaceDirectoryTreeItem extends SemaphoreTreeItem {
+	readonly gitRepo: simpleGit.SimpleGit;
+
 	constructor(public readonly workspaceFolder: vscode.WorkspaceFolder) {
 		super(workspaceFolder.name, vscode.TreeItemCollapsibleState.Expanded);
+
+		this.gitRepo = simpleGit.default(workspaceFolder.uri.fsPath);
 	}
 }
 
@@ -102,5 +117,19 @@ class WorkspaceDirectoryTreeItem extends SemaphoreTreeItem {
 class NoSuitableProjectTreeItem extends SemaphoreTreeItem {
 	constructor() {
 		super("No suitable Semaphore project found", vscode.TreeItemCollapsibleState.None);
+	}
+}
+
+class WorkflowTreeItem extends SemaphoreTreeItem {
+	constructor(public readonly workflow: types.Workflow) {
+		const timestamp = new Date(workflow.created_at.seconds * 1000);
+
+		const months = (timestamp.getMonth() + 1).toString().padStart(2, "0");
+		const days = (timestamp.getDay() + 1).toString().padStart(2, "0");
+		const hour = (timestamp.getHours()).toString().padStart(2, "0");
+		const minute = (timestamp.getMinutes()).toString().padStart(2, "0");
+		const formatted = `${timestamp.getFullYear()}-${months}-${days} ${hour}:${minute}`;
+
+		super(formatted, vscode.TreeItemCollapsibleState.Collapsed);
 	}
 }
