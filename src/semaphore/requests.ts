@@ -1,4 +1,4 @@
-import axios, { AxiosResponse } from 'axios';
+import axios, { AxiosError, AxiosResponse } from 'axios';
 import * as vscode from 'vscode';
 
 import * as types from './types';
@@ -63,29 +63,25 @@ function semaphoreGet<T = any>(url: string, params: object = {}): Promise<AxiosR
 async function retryRequest(runRequest: () => Promise<AxiosResponse<any>>, retryAmount: number = 10): Promise<AxiosResponse<any>> {
     let retryCount: number = retryAmount;
 
-    function innerRetry(response: AxiosResponse<any>): Promise<AxiosResponse<any>> {
-        if (response.status >= 500 && response.status < 600) {
-            retryCount -= retryCount;
-            console.log(`Request failed with status code ${response.status}. Retrying, ${retryCount} attempts left.`);
+    function catchError(error: AxiosError): Promise<AxiosResponse<any>> {
+        retryCount -= 1;
 
-            if (retryCount <= 1) {
-                runRequest().then(innerRetry);
-            }
-            else {
-                runRequest();
-            }
+        const requestSummary = `${error.request.method} ${error.request.host}${error.request.path}`;
+        let response = error.response;
+
+        if (!response) {
+            console.log(`Request ${requestSummary} failed: ${error.message}`);
+        } else {
+            console.log(`Request ${requestSummary} failed with status code ${response.status}. Retrying, ${retryCount} attempts left.`);
         }
 
-        return Promise.resolve(response);
+        if (retryCount >= 1) {
+            return runRequest().catch(catchError);
+        }
+        else {
+            return runRequest();
+        }
     }
 
-    const response = await runRequest();
-    return innerRetry(response);
+    return runRequest().catch(catchError);
 }
-
-
-// Scratchpad:
-// https://channable.semaphoreci.com/api/v1alpha/pipelines/c5d119bb-c8b6-4204-ac5d-e544ba749e8d?detailed=true
-
-// https://channable.semaphoreci.com/api/v1alpha/plumber-workflows?project_id=6152b604-a7af-499c-8215-8c9da2994cf8&branch_name=testing
-// Note: Has a LOT of timeouts!
