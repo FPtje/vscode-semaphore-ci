@@ -78,7 +78,19 @@ export class SemaphoreBranchProvider implements vscode.TreeDataProvider<Semaphor
 		const organisation = element.project.spec.repository.owner;
 
 		const pipelineDetails = await requests.getPipelineDetails(organisation, element.pipeline.ppl_id);
-		return [];
+
+		let treeItems: SemaphoreTreeItem[] = [];
+		for (let block of pipelineDetails.blocks) {
+			if (block.jobs.length === 0) {
+				treeItems.push(new BlockTreeItem(block));
+				continue;
+			}
+
+			for (let job of block.jobs) {
+				treeItems.push(new JobTreeItem(block, job));
+			}
+		}
+		return treeItems;
 	}
 
 	/** Get the Semaphore project belonging to a workspace folder. It looks at
@@ -151,6 +163,17 @@ class PipelineTreeItem extends SemaphoreTreeItem {
 	}
 }
 
-class PipelineDetailsTreeItem extends SemaphoreTreeItem {
+/** When a block has no jobs, show the status of the block */
+class BlockTreeItem extends SemaphoreTreeItem {
+	constructor(public readonly block: types.Block) {
+		super(block.name, vscode.TreeItemCollapsibleState.None);
+	}
+}
 
+/** When a block has jobs, show the status of each individual job instead of the entire block */
+class JobTreeItem extends SemaphoreTreeItem {
+	constructor(public readonly block: types.Block, public readonly job: types.Job) {
+		super(job.name, vscode.TreeItemCollapsibleState.None);
+		this.description = block.name;
+	}
 }

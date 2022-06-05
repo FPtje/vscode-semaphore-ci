@@ -83,6 +83,8 @@ export type Block = {
 export type Job = {
     status: JobStatus,
     result: JobResult,
+    name: string,
+    job_id: string,
     index: number,
 };
 
