@@ -55,12 +55,20 @@ function baseUrl(organisation: string, resourceName: ResourceName): string {
 
 function semaphoreGet<T = any>(url: string, params: object = {}): Promise<AxiosResponse<T, any>> {
     let apiKey = vscode.workspace.getConfiguration("semaphore-ci").apiKey;
-    return retryRequest(() => axios.get<T>(url, { headers: { authorization: `Token ${apiKey}` }, params: params }));
+
+    return retryRequest(() => axios.get<T>(
+        url,
+        { headers: { authorization: `Token ${apiKey}` }, params: params })
+    );
 };
 
 
 /** Semaphore's API often give HTTP 5XX errors. These can be retried. */
-async function retryRequest(runRequest: () => Promise<AxiosResponse<any>>, retryAmount: number = 10): Promise<AxiosResponse<any>> {
+async function retryRequest(
+    runRequest: () => Promise<AxiosResponse<any>>,
+    retryAmount: number = 10):
+    Promise<AxiosResponse<any>> {
+
     let retryCount: number = retryAmount;
 
     function catchError(error: AxiosError): Promise<AxiosResponse<any>> {
