@@ -183,7 +183,7 @@ export class SemaphoreBranchProvider implements vscode.TreeDataProvider<Semaphor
 				const owner = project.spec.repository.owner.toLowerCase();
 				const name = project.spec.repository.name.toLowerCase();
 
-				if (remoteUrl.includes(owner) && remoteUrl.includes(name)) {
+				if (remoteUrl.includes(`${owner}/${name}`)) {
 					return project;
 				}
 			};
