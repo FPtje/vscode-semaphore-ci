@@ -15,6 +15,10 @@ export function activate(context: vscode.ExtensionContext) {
 			treeProvider
 		);
 
+		vscode.commands.registerCommand('semaphore-ci.refreshTree', () =>
+			treeProvider.refresh()
+		);
+
 		context.subscriptions.push(disposable);
 	});
 }
@@ -25,6 +29,20 @@ export function deactivate() { }
 export class SemaphoreBranchProvider implements vscode.TreeDataProvider<SemaphoreTreeItem> {
 	constructor(public readonly projects: types.Project[]) { };
 
+	private _onDidChangeTreeData:
+		vscode.EventEmitter<
+			SemaphoreTreeItem |
+			SemaphoreTreeItem[] |
+			undefined |
+			null |
+			void
+		> = new vscode.EventEmitter<SemaphoreTreeItem |
+			SemaphoreTreeItem[] |
+			undefined |
+			null |
+			void
+		>();
+
 	onDidChangeTreeData?:
 		vscode.Event<
 			void |
@@ -32,7 +50,11 @@ export class SemaphoreBranchProvider implements vscode.TreeDataProvider<Semaphor
 			SemaphoreTreeItem[] |
 			null |
 			undefined
-		> | undefined;
+		> = this._onDidChangeTreeData.event;
+
+	refresh(): void {
+		this._onDidChangeTreeData.fire();
+	}
 
 	getChildren(element?: SemaphoreTreeItem): vscode.ProviderResult<SemaphoreTreeItem[]> {
 		// Top level: List workspaces

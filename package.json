@@ -16,7 +16,16 @@
 	],
 	"main": "./out/extension.js",
 	"contributes": {
-		"commands": [],
+		"commands": [
+			{
+                "command": "semaphore-ci.refreshTree",
+                "title": "Refresh",
+                "icon": {
+                    "light": "resources/light/refresh.svg",
+                    "dark": "resources/dark/refresh.svg"
+                }
+            }
+		],
 		"configuration": {
 			"title": "Semaphore CI",
 			"properties": {
@@ -62,7 +71,16 @@
 				"contents": "You have not yet opened a folder. Please open a folder in the Explorer view.",
 				"when": "config.semaphore-ci.apiKey != '' && config.semaphore-ci.organisations != [] && workspaceFolderCount == 0"
 			}
-		]
+		],
+		"menus": {
+			"view/title": [
+				{
+					"command": "semaphore-ci.refreshTree",
+					"when": "view == semaphore-ci-current-branch",
+					"group": "navigation"
+				}
+			]
+		}
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
