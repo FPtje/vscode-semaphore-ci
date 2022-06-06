@@ -3,7 +3,10 @@
 	"displayName": "semaphoreci",
 	"description": "Interact with Semaphore CI",
 	"publisher": "fptje",
-	"repository": "https://github.com/fptje/vscode-semaphoreci",
+	"repository": {
+		"type": "git",
+    	"url": "https://github.com/FPtje/vscode-semaphore-ci"
+	},
 	"version": "0.0.1",
 	"engines": {
 		"vscode": "^1.66.0"
