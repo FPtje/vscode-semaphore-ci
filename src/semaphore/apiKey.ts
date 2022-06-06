@@ -64,6 +64,11 @@ function markApiKeySet(set: boolean) {
     vscode.commands.executeCommand('setContext', 'semaphore-ci.apiKeySet', set);
 }
 
+/** For the welcome screen that says the API key is not set. */
+export function markApiKeyIncorrect(incorrect: boolean) {
+    vscode.commands.executeCommand('setContext', 'semaphore-ci.apiKeyIncorrect', incorrect);
+}
+
 /** Returns the location where the API key will be stored */
 function secretConfigPath(): string {
     const home = osPaths.home() || "";

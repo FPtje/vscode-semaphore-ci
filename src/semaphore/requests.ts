@@ -86,6 +86,11 @@ async function retryRequest(
         if (!response) {
             console.log(`Request ${requestSummary} failed: ${error.message}`);
         } else {
+            // When the error is specifically 401, we can retry, but it is very likely that the API
+            // key is incorrect. Show a welcome screen to explain that situation.
+            if (response.status === 401) {
+                apiKey.markApiKeyIncorrect(true);
+            }
             console.log(
                 `Request ${requestSummary} failed with status code ${response.status}. ` + `
                 Retrying, ${retryCount} attempts left.`

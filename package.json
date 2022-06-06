@@ -68,6 +68,11 @@
 			},
 			{
 				"view": "semaphore-ci-current-branch",
+				"contents": "The API key is set, but requests to semaphore return a HTTP/401 error, implying that the API key is either incorrect or does not have access to one or more of the configured organisations. Please do the following:\nReconfigure the API key:\n[Reconfigure API Key](command:semaphore-ci.setApiKey)\nVerify that all organisations in your settings are organisations that you have access to with the given API key:\n[Examine organisation settings](command:workbench.action.openSettings?%5B%22semaphoreci%22%5D)",
+				"when": "semaphore-ci.apiKeyIncorrect"
+			},
+			{
+				"view": "semaphore-ci-current-branch",
 				"contents": "You have not yet opened a folder. Please open a folder in the Explorer view.",
 				"when": "semaphore-ci.apiKeySet && config.semaphore-ci.organisations != [] && workspaceFolderCount == 0"
 			}
