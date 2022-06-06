@@ -64,6 +64,7 @@ export enum PipelineState {
     done = "DONE",
     running = "RUNNING",
     stopping = "STOPPING",
+    initializing = "INITIALIZING",
 };
 
 export enum PipelineResult {
