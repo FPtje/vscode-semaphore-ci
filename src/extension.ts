@@ -57,19 +57,9 @@ export class SemaphoreBranchProvider implements vscode.TreeDataProvider<Semaphor
 	}
 
 	getChildren(element?: SemaphoreTreeItem): vscode.ProviderResult<SemaphoreTreeItem[]> {
-		// Top level: List workspaces
+		// Top level: List workspace folders and their branch
 		if (!element) {
-			let workspaceFolders = vscode.workspace.workspaceFolders;
-			if (!workspaceFolders || workspaceFolders.length === 0) {
-				return [];
-			}
-			let res: SemaphoreTreeItem[] = [];
-
-			workspaceFolders.forEach(workspaceFolder => {
-				res.push(new WorkspaceDirectoryTreeItem(workspaceFolder));
-			});
-
-			return res;
+			return this.getWorkspaceFolders();
 		}
 
 		// Second level: List pipelines
@@ -89,6 +79,22 @@ export class SemaphoreBranchProvider implements vscode.TreeDataProvider<Semaphor
 		return element;
 	}
 
+	async getWorkspaceFolders(): Promise<SemaphoreTreeItem[]> {
+		let workspaceFolders = vscode.workspace.workspaceFolders;
+		if (!workspaceFolders || workspaceFolders.length === 0) {
+			return [];
+		}
+		let res: SemaphoreTreeItem[] = [];
+
+		for (const workspaceFolder of workspaceFolders) {
+			const gitRepo = simpleGit.default(workspaceFolder.uri.fsPath);
+			const branch = await gitRepo.branchLocal();
+			res.push(new WorkspaceDirectoryTreeItem(workspaceFolder, gitRepo, branch));
+		}
+
+		return res;
+	}
+
 	async getPipelines(element: WorkspaceDirectoryTreeItem): Promise<SemaphoreTreeItem[]> {
 		const project = await this.getProjectOfWorkspaceFolder(element);
 
@@ -98,7 +104,7 @@ export class SemaphoreBranchProvider implements vscode.TreeDataProvider<Semaphor
 		const organisation = project.spec.repository.owner;
 		const projectId = project.metadata.id;
 
-		const branch = await element.gitRepo.branchLocal();
+		const branch = element.branch;
 
 		if (branch.detached) { return []; }
 
@@ -163,12 +169,15 @@ class SemaphoreTreeItem extends vscode.TreeItem {
 }
 
 class WorkspaceDirectoryTreeItem extends SemaphoreTreeItem {
-	readonly gitRepo: simpleGit.SimpleGit;
-
-	constructor(public readonly workspaceFolder: vscode.WorkspaceFolder) {
+	constructor(
+		public readonly workspaceFolder: vscode.WorkspaceFolder,
+		public readonly gitRepo: simpleGit.SimpleGit,
+		public readonly branch: simpleGit.BranchSummary) {
 		super(workspaceFolder.name, vscode.TreeItemCollapsibleState.Expanded);
 
-		this.gitRepo = simpleGit.default(workspaceFolder.uri.fsPath);
+		if (!branch.detached) {
+			this.description = branch.current;
+		}
 	}
 }
 
