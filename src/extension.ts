@@ -1,3 +1,4 @@
+import * as path from 'path';
 import * as vscode from 'vscode';
 
 import * as types from './semaphore/types';
@@ -9,7 +10,10 @@ export function activate(context: vscode.ExtensionContext) {
 	requests.getProjects().then(function (projects: types.Project[]) {
 		const treeProvider = new SemaphoreBranchProvider(projects);
 
-		let disposable = vscode.window.registerTreeDataProvider("semaphore-ci-current-branch", treeProvider);
+		let disposable = vscode.window.registerTreeDataProvider(
+			"semaphore-ci-current-branch",
+			treeProvider
+		);
 
 		context.subscriptions.push(disposable);
 	});
@@ -21,7 +25,14 @@ export function deactivate() { }
 export class SemaphoreBranchProvider implements vscode.TreeDataProvider<SemaphoreTreeItem> {
 	constructor(public readonly projects: types.Project[]) { };
 
-	onDidChangeTreeData?: vscode.Event<void | SemaphoreTreeItem | SemaphoreTreeItem[] | null | undefined> | undefined;
+	onDidChangeTreeData?:
+		vscode.Event<
+			void |
+			SemaphoreTreeItem |
+			SemaphoreTreeItem[] |
+			null |
+			undefined
+		> | undefined;
 
 	getChildren(element?: SemaphoreTreeItem): vscode.ProviderResult<SemaphoreTreeItem[]> {
 		// Top level: List workspaces
@@ -77,7 +88,8 @@ export class SemaphoreBranchProvider implements vscode.TreeDataProvider<Semaphor
 	async getPipelineDetails(element: PipelineTreeItem): Promise<SemaphoreTreeItem[]> {
 		const organisation = element.project.spec.repository.owner;
 
-		const pipelineDetails = await requests.getPipelineDetails(organisation, element.pipeline.ppl_id);
+		const pipelineDetails =
+			await requests.getPipelineDetails(organisation, element.pipeline.ppl_id);
 
 		let treeItems: SemaphoreTreeItem[] = [];
 		for (let block of pipelineDetails.blocks) {
@@ -97,7 +109,8 @@ export class SemaphoreBranchProvider implements vscode.TreeDataProvider<Semaphor
 	 * the remotes and tries to match them against a project. It returns the
 	 * first project that matches a remote.
 	*/
-	async getProjectOfWorkspaceFolder(element: WorkspaceDirectoryTreeItem): Promise<types.Project | null> {
+	async getProjectOfWorkspaceFolder(element: WorkspaceDirectoryTreeItem):
+		Promise<types.Project | null> {
 		const isRepo = await element.gitRepo.checkIsRepo();
 
 		if (!isRepo) { return Promise.resolve(null); }
@@ -160,6 +173,7 @@ class PipelineTreeItem extends SemaphoreTreeItem {
 		super(formatted, vscode.TreeItemCollapsibleState.Collapsed);
 
 		this.description = pipeline.commit_message;
+		this.iconPath = stateAndResultToIcon(pipeline.state, pipeline.result);
 	}
 }
 
@@ -167,13 +181,110 @@ class PipelineTreeItem extends SemaphoreTreeItem {
 class BlockTreeItem extends SemaphoreTreeItem {
 	constructor(public readonly block: types.Block) {
 		super(block.name, vscode.TreeItemCollapsibleState.None);
+		const pipelineState = types.BlockStateToPipelineState(block.state);
+		const pipelineResult = types.BlockResultToPipelineResult(block.result);
+		this.iconPath = stateAndResultToIcon(pipelineState, pipelineResult);
 	}
 }
 
-/** When a block has jobs, show the status of each individual job instead of the entire block */
+/** When a block has jobs, show the status of each individual job instead of the
+ * entire block */
 class JobTreeItem extends SemaphoreTreeItem {
 	constructor(public readonly block: types.Block, public readonly job: types.Job) {
 		super(job.name, vscode.TreeItemCollapsibleState.None);
 		this.description = block.name;
+		this.iconPath = jobToIcon(job);
 	}
+}
+
+/** Pipeline status icon from state and result */
+function stateAndResultToIcon(
+	state: types.PipelineState,
+	result: types.PipelineResult | undefined): { light: string; dark: string; } {
+	let iconName: string;
+
+	switch (state) {
+		case types.PipelineState.running: {
+			iconName = "running.svg";
+			break;
+		}
+		case types.PipelineState.stopping: {
+			iconName = "stopping.svg";
+			break;
+		}
+		case types.PipelineState.done: {
+			if (!result) {
+				iconName = "status-error.svg";
+				break;
+			}
+
+			switch (result) {
+				case types.PipelineResult.passed: {
+					iconName = "status-ok.svg";
+					break;
+				}
+				case types.PipelineResult.stopped: {
+					iconName = "status-stopped.svg";
+					break;
+				}
+				case types.PipelineResult.canceled: {
+					// TODO: Canceled icon?
+					iconName = "status-stopped.svg";
+					break;
+				}
+				case types.PipelineResult.failed: {
+					iconName = "status-error.svg";
+					break;
+				}
+			}
+			break;
+		}
+	}
+
+	return {
+		light: path.join(__filename, '..', '..', 'resources', 'light', iconName),
+		dark: path.join(__filename, '..', '..', 'resources', 'dark', iconName)
+	};
+}
+
+/** Job status/result to icon */
+function jobToIcon(job: types.Job): { light: string; dark: string; } {
+	let iconName: string;
+
+	switch (job.status) {
+		case types.JobStatus.pending: {
+			iconName = "pending.svg";
+			break;
+		}
+		case types.JobStatus.queued: {
+			iconName = "queued.svg";
+			break;
+		}
+		case types.JobStatus.running: {
+			iconName = "running.svg";
+			break;
+		}
+		case types.JobStatus.finished: {
+			switch (job.result) {
+				case types.JobResult.passed: {
+					iconName = "status-ok.svg";
+					break;
+				}
+				case types.JobResult.failed: {
+					iconName = "status-error.svg";
+					break;
+				}
+				case types.JobResult.stopped: {
+					iconName = "status-stopped.svg";
+					break;
+				}
+			}
+			break;
+		}
+	}
+
+	return {
+		light: path.join(__filename, '..', '..', 'resources', 'light', iconName),
+		dark: path.join(__filename, '..', '..', 'resources', 'dark', iconName)
+	};
 }

@@ -61,24 +61,72 @@ export type PipelineDetails = {
 };
 
 export enum PipelineState {
-    done = "done",
-    running = "running",
-    stopping = "stopping",
+    done = "DONE",
+    running = "RUNNING",
+    stopping = "STOPPING",
 };
 
 export enum PipelineResult {
+    passed = "PASSED",
+    stopped = "STOPPED",
+    canceled = "CANCELED",
+    failed = "FAILED",
+};
+
+export type Block = {
+    name: string,
+    state: BlockState,
+    result: BlockResult,
+    jobs: Job[],
+};
+
+export enum BlockResult {
     passed = "passed",
     stopped = "stopped",
     canceled = "canceled",
     failed = "failed",
 };
 
-export type Block = {
-    name: string,
-    state: PipelineState,
-    result: PipelineResult,
-    jobs: Job[],
+export enum BlockState {
+    done = "done",
+    running = "running",
+    stopping = "stopping",
 };
+
+/** A BlockState is isomorphic to PipelineState, with the difference being in
+ * capital letters. */
+export function BlockStateToPipelineState(state: BlockState): PipelineState {
+    switch (state) {
+        case BlockState.done: {
+            return PipelineState.done;
+        }
+        case BlockState.running: {
+            return PipelineState.running;
+        }
+        case BlockState.stopping: {
+            return PipelineState.stopping;
+        }
+    }
+}
+
+/** A blockresult is isomorphic to Pipelineresult, with the difference
+ * being in capital letters. */
+export function BlockResultToPipelineResult(result: BlockResult): PipelineResult {
+    switch (result) {
+        case BlockResult.passed: {
+            return PipelineResult.passed;
+        }
+        case BlockResult.stopped: {
+            return PipelineResult.stopped;
+        }
+        case BlockResult.canceled: {
+            return PipelineResult.canceled;
+        }
+        case BlockResult.failed: {
+            return PipelineResult.failed;
+        }
+    }
+}
 
 export type Job = {
     status: JobStatus,
@@ -89,13 +137,14 @@ export type Job = {
 };
 
 export enum JobStatus {
-    PENDING = "PENDING",
-    QUEUED = "QUEUED",
-    RUNNING = "RUNNING",
-    FINISHED = "FINISHED",
+    pending = "PENDING",
+    queued = "QUEUED",
+    running = "RUNNING",
+    finished = "FINISHED",
 }
 
 export enum JobResult {
-    PASSED = "PASSED",
-    FAILED = "FAILED",
+    passed = "PASSED",
+    failed = "FAILED",
+    stopped = "STOPPED",
 }
