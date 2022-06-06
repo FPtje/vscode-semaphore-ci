@@ -2,10 +2,10 @@ import axios, { AxiosError, AxiosResponse } from 'axios';
 import * as vscode from 'vscode';
 
 import * as types from './types';
+import * as apiKey from './apiKey';
 
 /** Get the projects belonging to the list of organisations as configured in the settings. */
-export async function getProjects(): Promise<types.Project[]> {
-    const organisations: string[] = vscode.workspace.getConfiguration("semaphore-ci").organisations;
+export async function getProjects(organisations: string[]): Promise<types.Project[]> {
     let promises: Promise<AxiosResponse<types.Project[], any>>[] = [];
 
     organisations.forEach(organisation => {
@@ -23,16 +23,21 @@ export async function getProjects(): Promise<types.Project[]> {
 };
 
 /** Get the pipelines belonging to a given organisation's project and branch */
-export async function getPipelines(organisation: string, projectId: string, branchName: string): Promise<types.Pipeline[]> {
+export async function getPipelines(organisation: string, projectId: string, branchName: string):
+    Promise<types.Pipeline[]> {
     const url = baseUrl(organisation, ResourceName.pipelines);
 
-    // eslint-disable-next-line @typescript-eslint/naming-convention
-    const response = await semaphoreGet<types.Pipeline[]>(url, { project_id: projectId, branch_name: branchName });
+    const response = await semaphoreGet<types.Pipeline[]>(
+        url,
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        { project_id: projectId, branch_name: branchName }
+    );
     return response.data;
 }
 
 /** The details of a pipeline, which contains data about the blocks and jobs */
-export async function getPipelineDetails(organisation: string, pipelineId: string): Promise<types.PipelineDetails> {
+export async function getPipelineDetails(organisation: string, pipelineId: string):
+    Promise<types.PipelineDetails> {
     const base = baseUrl(organisation, ResourceName.pipelines);
     const url = `${base}/${pipelineId}`;
 
@@ -53,12 +58,13 @@ function baseUrl(organisation: string, resourceName: ResourceName): string {
     return `https://${organisation}.semaphoreci.com/api/v1alpha/${resourceName}`;
 }
 
-function semaphoreGet<T = any>(url: string, params: object = {}): Promise<AxiosResponse<T, any>> {
-    let apiKey = vscode.workspace.getConfiguration("semaphore-ci").apiKey;
+async function semaphoreGet<T = any>(url: string, params: object = {}):
+    Promise<AxiosResponse<T, any>> {
+    const key = await apiKey.getApiKey();
 
     return retryRequest(() => axios.get<T>(
         url,
-        { headers: { authorization: `Token ${apiKey}` }, params: params })
+        { headers: { authorization: `Token ${key}` }, params: params })
     );
 };
 
@@ -80,7 +86,10 @@ async function retryRequest(
         if (!response) {
             console.log(`Request ${requestSummary} failed: ${error.message}`);
         } else {
-            console.log(`Request ${requestSummary} failed with status code ${response.status}. Retrying, ${retryCount} attempts left.`);
+            console.log(
+                `Request ${requestSummary} failed with status code ${response.status}. ` + `
+                Retrying, ${retryCount} attempts left.`
+            );
         }
 
         if (retryCount >= 1) {

@@ -1,30 +1,61 @@
 import * as path from 'path';
 import * as vscode from 'vscode';
+import * as simpleGit from 'simple-git';
 
+import * as apiKey from './semaphore/apiKey';
 import * as types from './semaphore/types';
 import * as requests from './semaphore/requests';
-import * as simpleGit from 'simple-git';
 
 // this method is called when the extension is activated, i.e. when the view is opened
 export function activate(context: vscode.ExtensionContext) {
-	requests.getProjects().then(function (projects: types.Project[]) {
-		const treeProvider = new SemaphoreBranchProvider(projects);
-
-		let disposable = vscode.window.registerTreeDataProvider(
-			"semaphore-ci-current-branch",
-			treeProvider
-		);
-
-		vscode.commands.registerCommand('semaphore-ci.refreshTree', () =>
-			treeProvider.refresh()
-		);
-
-		context.subscriptions.push(disposable);
+	// Early registration of refreshTree. This command is re-registered when the tree is initially
+	// created.
+	vscode.commands.registerCommand('semaphore-ci.refreshTree', () => {
+		createTreeDataProvider();
 	});
+
+	createTreeDataProvider().then(disposable => {
+		if (disposable) {
+			context.subscriptions.push(disposable);
+		}
+	});
+
+	let disposable = vscode.commands.registerCommand('semaphore-ci.setApiKey', async () => {
+		const apiKeyQuery = await vscode.window.showInputBox({
+			placeHolder: "API Key",
+			prompt: "Semaphore CI API key. Get from https://me.semaphoreci.com/account",
+		});
+
+		apiKey.setApiKey(apiKeyQuery);
+		createTreeDataProvider();
+	});
+
+	context.subscriptions.push(disposable);
 }
 
 /** this method is called when the extension is deactivated */
 export function deactivate() { }
+
+async function createTreeDataProvider(): Promise<vscode.Disposable | undefined> {
+	const organisations: string[] = vscode.workspace.getConfiguration("semaphore-ci").organisations;
+	if (organisations.length === 0) {
+		return;
+	}
+
+	const projects = await requests.getProjects(organisations);
+	const treeProvider = new SemaphoreBranchProvider(projects);
+
+	let disposable = vscode.window.registerTreeDataProvider(
+		"semaphore-ci-current-branch",
+		treeProvider
+	);
+
+	vscode.commands.registerCommand('semaphore-ci.refreshTree', () =>
+		treeProvider.refresh()
+	);
+
+	return disposable;
+}
 
 export class SemaphoreBranchProvider implements vscode.TreeDataProvider<SemaphoreTreeItem> {
 	constructor(public readonly projects: types.Project[]) { };

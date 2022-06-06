@@ -12,28 +12,28 @@
 		"Other"
 	],
 	"activationEvents": [
+		"onCommand:semaphore-ci.setApiKey",
 		"onView:semaphore-ci-current-branch"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
 		"commands": [
 			{
-                "command": "semaphore-ci.refreshTree",
-                "title": "Refresh",
-                "icon": {
-                    "light": "resources/light/refresh.svg",
-                    "dark": "resources/dark/refresh.svg"
-                }
-            }
+				"command": "semaphore-ci.setApiKey",
+				"title": "Semaphore CI: Set API Key"
+			},
+			{
+				"command": "semaphore-ci.refreshTree",
+				"title": "Refresh",
+				"icon": {
+					"light": "resources/light/refresh.svg",
+					"dark": "resources/dark/refresh.svg"
+				}
+			}
 		],
 		"configuration": {
 			"title": "Semaphore CI",
 			"properties": {
-				"semaphore-ci.apiKey": {
-					"type": "string",
-					"default": "",
-					"markdownDescription": "The API key, as obtained from your [Semaphore account settings](https://me.semaphoreci.com/account)."
-				},
 				"semaphore-ci.organisations": {
 					"markdownDescription": "The list of organisations your Semaphore CI account has access to. To find this, open [me.semaphoreci.com](https://me.semaphoreci.com). The organisations will be shown in the URLs. For example, if you have an organisation `foo.semaphoreci.com`, the organisation name will be `foo`.",
 					"type": "array",
@@ -63,13 +63,13 @@
 		"viewsWelcome": [
 			{
 				"view": "semaphore-ci-current-branch",
-				"contents": "Get started with Semaphore CI by configuring your API key and connected organisations.\n[Open settings](command:workbench.action.openSettings?%5B%22semaphoreci%22%5D)",
-				"when": "config.semaphore-ci.apiKey == '' || config.semaphore-ci.organisations == []"
+				"contents": "Get started with Semaphore CI by configuring your API key and connected organisations.\nYour API key can be found at [https://me.semaphoreci.com/account](https://me.semaphoreci.com/account).\n[Set API Key](command:semaphore-ci.setApiKey)\nSee the settings for instructions on finding the organisations:\n[Open settings](command:workbench.action.openSettings?%5B%22semaphoreci%22%5D)\nOnce the API Key and organisations are set, you can press the Refresh key at the top to refresh the view.",
+				"when": "semaphore-ci.apiKeySet == false || config.semaphore-ci.organisations == []"
 			},
 			{
 				"view": "semaphore-ci-current-branch",
 				"contents": "You have not yet opened a folder. Please open a folder in the Explorer view.",
-				"when": "config.semaphore-ci.apiKey != '' && config.semaphore-ci.organisations != [] && workspaceFolderCount == 0"
+				"when": "semaphore-ci.apiKeySet && config.semaphore-ci.organisations != [] && workspaceFolderCount == 0"
 			}
 		],
 		"menus": {
@@ -105,6 +105,7 @@
 	},
 	"dependencies": {
 		"axios": "^0.27.2",
+		"os-paths": "^6.9.0",
 		"simple-git": "^3.7.1"
 	}
 }
