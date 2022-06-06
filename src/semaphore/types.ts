@@ -92,42 +92,8 @@ export enum BlockState {
     done = "done",
     running = "running",
     stopping = "stopping",
+    waiting = "waiting",
 };
-
-/** A BlockState is isomorphic to PipelineState, with the difference being in
- * capital letters. */
-export function BlockStateToPipelineState(state: BlockState): PipelineState {
-    switch (state) {
-        case BlockState.done: {
-            return PipelineState.done;
-        }
-        case BlockState.running: {
-            return PipelineState.running;
-        }
-        case BlockState.stopping: {
-            return PipelineState.stopping;
-        }
-    }
-}
-
-/** A blockresult is isomorphic to Pipelineresult, with the difference
- * being in capital letters. */
-export function BlockResultToPipelineResult(result: BlockResult): PipelineResult {
-    switch (result) {
-        case BlockResult.passed: {
-            return PipelineResult.passed;
-        }
-        case BlockResult.stopped: {
-            return PipelineResult.stopped;
-        }
-        case BlockResult.canceled: {
-            return PipelineResult.canceled;
-        }
-        case BlockResult.failed: {
-            return PipelineResult.failed;
-        }
-    }
-}
 
 export type Job = {
     status: JobStatus,

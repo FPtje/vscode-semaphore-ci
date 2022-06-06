@@ -240,9 +240,7 @@ class PipelineTreeItem extends SemaphoreTreeItem {
 class BlockTreeItem extends SemaphoreTreeItem {
 	constructor(public readonly block: types.Block) {
 		super(block.name, vscode.TreeItemCollapsibleState.None);
-		const pipelineState = types.BlockStateToPipelineState(block.state);
-		const pipelineResult = types.BlockResultToPipelineResult(block.result);
-		this.iconPath = stateAndResultToIcon(pipelineState, pipelineResult);
+		this.iconPath = blockToIcon(block);
 	}
 }
 
@@ -296,6 +294,58 @@ function stateAndResultToIcon(
 					break;
 				}
 				case types.PipelineResult.failed: {
+					iconName = "status-error.svg";
+					break;
+				}
+			}
+			break;
+		}
+	}
+
+	return {
+		light: path.join(__filename, '..', '..', 'resources', 'light', iconName),
+		dark: path.join(__filename, '..', '..', 'resources', 'dark', iconName)
+	};
+}
+/** Use the block state and status to produce an icon */
+function blockToIcon(
+	block: types.Block): { light: string; dark: string; } {
+	let iconName: string;
+
+	switch (block.state) {
+		case types.BlockState.waiting: {
+			iconName = "queued.svg";
+			break;
+		}
+		case types.BlockState.running: {
+			iconName = "running.svg";
+			break;
+		}
+		case types.BlockState.stopping: {
+			iconName = "stopping.svg";
+			break;
+		}
+		case types.BlockState.done: {
+			if (!block.result) {
+				iconName = "status-error.svg";
+				break;
+			}
+
+			switch (block.result) {
+				case types.BlockResult.passed: {
+					iconName = "status-ok.svg";
+					break;
+				}
+				case types.BlockResult.stopped: {
+					iconName = "status-stopped.svg";
+					break;
+				}
+				case types.BlockResult.canceled: {
+					// TODO: Canceled icon?
+					iconName = "status-stopped.svg";
+					break;
+				}
+				case types.BlockResult.failed: {
 					iconName = "status-error.svg";
 					break;
 				}
