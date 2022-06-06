@@ -8,16 +8,17 @@ import * as requests from './semaphore/requests';
 
 // this method is called when the extension is activated, i.e. when the view is opened
 export function activate(context: vscode.ExtensionContext) {
-	// Early registration of refreshTree. This command is re-registered when the tree is initially
-	// created.
-	vscode.commands.registerCommand('semaphore-ci.refreshTree', () => {
-		createTreeDataProvider();
-	});
+	let treeProvider: SemaphoreBranchProvider | undefined;
 
-	createTreeDataProvider().then(disposable => {
-		if (disposable) {
-			context.subscriptions.push(disposable);
+	createTreeDataProvider().then(provider => { treeProvider = provider; });
+
+	vscode.commands.registerCommand('semaphore-ci.refreshTree', () => {
+		if (!treeProvider) {
+			createTreeDataProvider().then(provider => { treeProvider = provider; });
+			return;
 		}
+
+		treeProvider.refresh();
 	});
 
 	let disposable = vscode.commands.registerCommand('semaphore-ci.setApiKey', async () => {
@@ -36,7 +37,7 @@ export function activate(context: vscode.ExtensionContext) {
 /** this method is called when the extension is deactivated */
 export function deactivate() { }
 
-async function createTreeDataProvider(): Promise<vscode.Disposable | undefined> {
+async function createTreeDataProvider(): Promise<SemaphoreBranchProvider | undefined> {
 	const organisations: string[] = vscode.workspace.getConfiguration("semaphore-ci").organisations;
 	if (organisations.length === 0) {
 		return;
@@ -45,16 +46,12 @@ async function createTreeDataProvider(): Promise<vscode.Disposable | undefined> 
 	const projects = await requests.getProjects(organisations);
 	const treeProvider = new SemaphoreBranchProvider(projects);
 
-	let disposable = vscode.window.registerTreeDataProvider(
+	vscode.window.registerTreeDataProvider(
 		"semaphore-ci-current-branch",
 		treeProvider
 	);
 
-	vscode.commands.registerCommand('semaphore-ci.refreshTree', () =>
-		treeProvider.refresh()
-	);
-
-	return disposable;
+	return treeProvider;
 }
 
 export class SemaphoreBranchProvider implements vscode.TreeDataProvider<SemaphoreTreeItem> {
