@@ -45,6 +45,15 @@ export async function getPipelineDetails(organisation: string, pipelineId: strin
     return response.data;
 }
 
+export async function getJobLogs(organisation: string, jobId: string): Promise<types.JobLog> {
+    // This base is different, it doesn't have the `api/v1alpha` bit
+    const base = `https://${organisation}.semaphoreci.com/jobs/`;
+    const url = `${base}/${jobId}/plain_logs.json`;
+
+    const response = await semaphoreGet<types.JobLog>(url);
+    return response.data;
+}
+
 /** Kinds of resources that can be accessed through the semaphore API */
 enum ResourceName {
     projects = "projects",

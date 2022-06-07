@@ -5,7 +5,7 @@
 	"publisher": "fptje",
 	"repository": {
 		"type": "git",
-    	"url": "https://github.com/FPtje/vscode-semaphore-ci"
+		"url": "https://github.com/FPtje/vscode-semaphore-ci"
 	},
 	"version": "0.0.1",
 	"engines": {
@@ -24,6 +24,14 @@
 			{
 				"command": "semaphore-ci.setApiKey",
 				"title": "Semaphore CI: Set API Key"
+			},
+			{
+				"command": "semaphore-ci.openLogs",
+				"title": "Open logs",
+				"icon": {
+					"light": "resources/light/open-logs.svg",
+					"dark": "resources/dark/open-logs.svg"
+				}
 			},
 			{
 				"command": "semaphore-ci.refreshTree",
@@ -86,6 +94,13 @@
 					"command": "semaphore-ci.refreshTree",
 					"when": "view == semaphore-ci-current-branch",
 					"group": "navigation"
+				}
+			],
+			"view/item/context": [
+				{
+					"command": "semaphore-ci.openLogs",
+					"when": "view == semaphore-ci-current-branch && viewItem == semaphoreJob",
+					"group": "inline"
 				}
 			]
 		}

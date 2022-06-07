@@ -103,6 +103,8 @@ export type Job = {
     index: number,
 };
 
+export type JobLog = string;
+
 export enum JobStatus {
     pending = "PENDING",
     queued = "QUEUED",

@@ -12,6 +12,8 @@ export function activate(context: vscode.ExtensionContext) {
 
 	createTreeDataProvider().then(provider => { treeProvider = provider; });
 
+	vscode.commands.registerCommand('semaphore-ci.openLogs', openJobLogs);
+
 	vscode.commands.registerCommand('semaphore-ci.refreshTree', () => {
 		if (!treeProvider) {
 			createTreeDataProvider().then(provider => { treeProvider = provider; });
@@ -30,7 +32,12 @@ export function activate(context: vscode.ExtensionContext) {
 		apiKey.setApiKey(apiKeyQuery);
 		createTreeDataProvider();
 	});
+	context.subscriptions.push(disposable);
 
+	disposable = vscode.workspace.registerTextDocumentContentProvider(
+		"semaphore-ci-joblog",
+		new JobLogProvider()
+	);
 	context.subscriptions.push(disposable);
 }
 
@@ -155,7 +162,7 @@ export class SemaphoreBranchProvider implements vscode.TreeDataProvider<Semaphor
 			}
 
 			for (let job of block.jobs) {
-				treeItems.push(new JobTreeItem(block, job));
+				treeItems.push(new JobTreeItem(element, block, job));
 			}
 		}
 		return treeItems;
@@ -247,10 +254,15 @@ class BlockTreeItem extends SemaphoreTreeItem {
 /** When a block has jobs, show the status of each individual job instead of the
  * entire block */
 class JobTreeItem extends SemaphoreTreeItem {
-	constructor(public readonly block: types.Block, public readonly job: types.Job) {
+	constructor(
+		public readonly parent: PipelineTreeItem,
+		public readonly block: types.Block,
+		public readonly job: types.Job
+	) {
 		super(job.name, vscode.TreeItemCollapsibleState.None);
 		this.description = block.name;
 		this.iconPath = jobToIcon(job);
+		this.contextValue = "semaphoreJob";
 	}
 }
 
@@ -391,8 +403,7 @@ function jobToIcon(job: types.Job): { light: string; dark: string; } {
 					iconName = "status-stopped.svg";
 					break;
 				}
-			}
-			break;
+			}openJobLogs;
 		}
 	}
 
@@ -400,4 +411,22 @@ function jobToIcon(job: types.Job): { light: string; dark: string; } {
 		light: path.join(__filename, '..', '..', 'resources', 'light', iconName),
 		dark: path.join(__filename, '..', '..', 'resources', 'dark', iconName)
 	};
+}
+
+async function openJobLogs(jobElement: JobTreeItem) {
+	const organisation = jobElement.parent.project.spec.repository.owner;
+	const uri = vscode.Uri.parse(`semaphore-ci-joblog:${organisation}/${jobElement.job.job_id}`);
+	const doc = await vscode.workspace.openTextDocument(uri);
+	await vscode.window.showTextDocument(doc, { preview: false });
+}
+
+class JobLogProvider implements vscode.TextDocumentContentProvider {
+	constructor() { }
+
+	provideTextDocumentContent(uri: vscode.Uri, _token: vscode.CancellationToken): vscode.ProviderResult<string> {
+		const pathElements = uri.path.split('/');
+		const organisation = pathElements[0];
+		const jobId = pathElements[1];
+		return requests.getJobLogs(organisation, jobId);
+	}
 }
