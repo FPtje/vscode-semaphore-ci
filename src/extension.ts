@@ -427,6 +427,12 @@ class JobLogProvider implements vscode.TextDocumentContentProvider {
 		const pathElements = uri.path.split('/');
 		const organisation = pathElements[0];
 		const jobId = pathElements[1];
-		return requests.getJobLogs(organisation, jobId);
+		return requests.getJobLogs(organisation, jobId).then(jobLog => {
+			// Remove all terminal colour modifiers
+			const replacedJoblog = jobLog.replace(/\x1b\[[0-9;]*[a-zA-Z]/g, "");
+
+			return replacedJoblog;
+		});
+
 	}
 }
