@@ -10,3 +10,4 @@ vsc-extension-quickstart.md
 **/*.ts
 images/logo/icon.svg
 **/*.nix
+flake.lock
