@@ -16,8 +16,8 @@ This extension contributes the following settings:
 
 ## Credits
 
-* Semaphore logo taken from [gilbarbara/logos](https://github.com/gilbarbara/logos).
-* Some other logos taken and modified from the [vscode/python](https://github.com/microsoft/vscode-python) extension.
+* Semaphore logo taken from [gilbarbara/logos](https://github.com/gilbarbara/logos) ([LICENSE](https://github.com/gilbarbara/logos/blob/40f3135/LICENSE.txt)).
+* Some other logos taken and modified from the [vscode/python](https://github.com/microsoft/vscode-python) extension ([LICENSE](https://github.com/microsoft/vscode-python/blob/1187381/LICENSE)).
 
 ## Release Notes
 
