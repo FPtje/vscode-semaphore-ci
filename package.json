@@ -1,6 +1,6 @@
 {
 	"name": "semaphoreci",
-	"displayName": "semaphoreci",
+	"displayName": "Semaphore CI (unofficial)",
 	"description": "Interact with Semaphore CI",
 	"publisher": "fptje",
 	"repository": {
