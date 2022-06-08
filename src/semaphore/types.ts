@@ -61,10 +61,11 @@ export type PipelineDetails = {
 };
 
 export enum PipelineState {
-    done = "DONE",
+    queuing = "QUEUING",
+    initializing = "INITIALIZING",
     running = "RUNNING",
     stopping = "STOPPING",
-    initializing = "INITIALIZING",
+    done = "DONE",
 };
 
 export enum PipelineResult {

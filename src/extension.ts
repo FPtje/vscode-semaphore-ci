@@ -273,6 +273,10 @@ function stateAndResultToIcon(
 	let iconName: string;
 
 	switch (state) {
+		case types.PipelineState.queuing: {
+			iconName = "queued.svg";
+			break;
+		}
 		case types.PipelineState.initializing: {
 			iconName = "queued.svg";
 			break;
