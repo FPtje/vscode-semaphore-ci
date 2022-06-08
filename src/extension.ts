@@ -314,6 +314,13 @@ function stateAndResultToIcon(
 		}
 	}
 
+	if (!iconName) {
+		vscode.window.showErrorMessage(
+			`Could not generate pipeline icon for pipeline state ${state}/${result}`
+		);
+		iconName = "pending.svg";
+	}
+
 	return {
 		light: path.join(__filename, '..', '..', 'resources', 'light', iconName),
 		dark: path.join(__filename, '..', '..', 'resources', 'dark', iconName)
@@ -366,6 +373,13 @@ function blockToIcon(
 		}
 	}
 
+	if (!iconName) {
+		vscode.window.showErrorMessage(
+			`Could not generate block icon for block state ${block.state}/${block.result}`
+		);
+		iconName = "pending.svg";
+	}
+
 	return {
 		light: path.join(__filename, '..', '..', 'resources', 'light', iconName),
 		dark: path.join(__filename, '..', '..', 'resources', 'dark', iconName)
@@ -405,6 +419,12 @@ function jobToIcon(job: types.Job): { light: string; dark: string; } {
 				}
 			}openJobLogs;
 		}
+	}
+	if (!iconName) {
+		vscode.window.showErrorMessage(
+			`Could not generate job icon for job state ${job.status}/${job.result}`
+		);
+		iconName = "pending.svg";
 	}
 
 	return {
