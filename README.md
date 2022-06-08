@@ -1,6 +1,6 @@
 # semaphoreci
 
-Connect with Semaphore CI and show its status, right in your editor!
+Connect with Semaphore CI and show your build status, right in your editor!
 
 ## Features
 
@@ -22,6 +22,10 @@ This extension contributes the following settings:
 ## Release Notes
 
 See [CHANGELOG](./CHANGELOG.md).
+
+## Known Issues
+
+When opening a job's log while it is still running, it will not refresh, even after closing and reopening the job log.
 
 ### 0.0.1
 
