@@ -19,7 +19,7 @@
 		"onView:semaphore-ci-current-branch"
 	],
 	"main": "./out/extension.js",
-	"icon": "./resources/icon.png",
+	"icon": "images/logo/icon.png",
 	"contributes": {
 		"commands": [
 			{
