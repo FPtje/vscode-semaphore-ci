@@ -81,7 +81,7 @@
 			{
 				"view": "semaphore-ci-current-branch",
 				"contents": "The API key is set, but requests to semaphore return a HTTP/401 error, implying that the API key is either incorrect or does not have access to one or more of the configured organisations. Please do the following:\nReconfigure the API key:\n[Reconfigure API Key](command:semaphore-ci.setApiKey)\nVerify that all organisations in your settings are organisations that you have access to with the given API key:\n[Examine organisation settings](command:workbench.action.openSettings?%5B%22semaphoreci%22%5D)",
-				"when": "semaphore-ci.apiKeyIncorrect"
+				"when": "semaphore-ci.apiKeyIncorrect && semaphore-ci.apiKeySet"
 			},
 			{
 				"view": "semaphore-ci-current-branch",
@@ -115,6 +115,7 @@
 		"test": "node ./out/test/runTest.js"
 	},
 	"devDependencies": {
+		"@types/fs-extra": "^9.0.13",
 		"@types/glob": "^7.2.0",
 		"@types/mocha": "^9.1.1",
 		"@types/node": "14.x",
@@ -130,7 +131,8 @@
 	},
 	"dependencies": {
 		"axios": "^0.27.2",
-		"os-paths": "^6.9.0",
+		"env-paths-ts": "^1.0.1",
+		"fs-extra": "^10.1.0",
 		"simple-git": "^3.7.1"
 	}
 }

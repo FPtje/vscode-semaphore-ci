@@ -1,8 +1,7 @@
-import * as fs from 'fs';
 import * as path from 'path';
-import * as os from 'os';
-import * as osPaths from 'os-paths/cjs';
 import * as vscode from 'vscode';
+import fse = require('fs-extra');
+
 
 let apiKey: string | undefined;
 
@@ -13,45 +12,45 @@ export async function getApiKey(): Promise<string | undefined> {
         return apiKey;
     }
 
-    const keyPath = secretConfigPath();
+    const keyPath = await secretConfigPath();
 
-    const stat = await fs.promises.stat(keyPath);
-    if (!stat.isFile) {
+    const exists = await fse.pathExists(keyPath);
+    if (!exists) {
         markApiKeySet(false);
         return;
     }
 
-    const configContents = await fs.promises.readFile(keyPath, {encoding: "utf-8"});
-	try {
-		const key = JSON.parse(configContents).apiKey;
+    const configContents = await fse.readFile(keyPath, { encoding: "utf-8" });
+    try {
+        const key = JSON.parse(configContents).apiKey;
         apiKey = key;
-		markApiKeySet(true);
+        markApiKeySet(true);
         return apiKey;
-	} catch (error) {
-		markApiKeySet(false);
+    } catch (error) {
+        markApiKeySet(false);
         return;
-	}
+    }
 }
 
 /** Set the API key, removing the file when unset */
 export async function setApiKey(key: string | undefined) {
     apiKey = key;
-    const keyPath = secretConfigPath();
+    const keyPath = await secretConfigPath();
 
     // Remove the file when unset
     if (key === '' || !key) {
         markApiKeySet(false);
-        const stat = await fs.promises.stat(keyPath);
+        const stat = await fse.stat(keyPath);
         if (!stat.isFile) {
             return;
         }
 
-        fs.promises.rm(keyPath);
+        fse.rm(keyPath);
     }
 
     markApiKeySet(true);
 
-    await fs.promises.writeFile(
+    await fse.writeFile(
         keyPath,
         JSON.stringify({
             apiKey: key
@@ -70,18 +69,13 @@ export function markApiKeyIncorrect(incorrect: boolean) {
 }
 
 /** Returns the location where the API key will be stored */
-function secretConfigPath(): string {
-    const home = osPaths.home() || "";
-    const configFileName = "vs-code-semaphore-ci-extension.json";
-    if (!home) { return configFileName; }
+async function secretConfigPath(): Promise<string> {
+    const envPaths = require('env-paths-ts');
+    const homeDir = envPaths.default('semaphore-ci', { suffix: 'vscode' }).data;
+    // Make sure the directory exists
+    await fse.ensureDir(homeDir);
 
-    let configPath: string;
+    const configFileName = "config.json";
 
-    if (os.platform() === 'win32') {
-        configPath = path.join('AppData', 'Local');
-    } else {
-        configPath = path.join('.config');
-    }
-
-    return path.join(home, configPath, configFileName);
+    return path.join(homeDir, configFileName);
 }
