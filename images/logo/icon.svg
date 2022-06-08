@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="256px"
+   height="160px"
+   viewBox="0 0 256 160"
+   version="1.1"
+   preserveAspectRatio="xMidYMid"
+   id="svg873"
+   sodipodi:docname="logo.svg"
+   inkscape:export-filename="/home/falco/Downloads/semaphore-logo.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96"
+   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)">
+  <metadata
+     id="metadata879">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs877" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="3840"
+     inkscape:window-height="1600"
+     id="namedview875"
+     showgrid="false"
+     inkscape:zoom="3.0781242"
+     inkscape:cx="189.13062"
+     inkscape:cy="78.553221"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg873" />
+  <g
+     id="g871">
+    <path
+       style="fill:#f06332"
+       d="m 26.523474,66.617745 c 15.420181,15.557387 30.669088,31.29206 46.198073,46.736835 12.78832,11.73818 34.599993,10.217 45.824773,-2.93938 11.65531,-11.789568 23.18548,-23.70862 34.91946,-35.416787 5.72018,-5.037802 14.79093,-3.174118 19.14627,2.698619 5.20972,5.298537 10.41945,10.597074 15.62918,15.895611 -15.87649,16.052727 -31.48882,32.376057 -47.5395,48.250397 -21.02969,19.3388 -54.289172,23.27533 -79.304179,9.52186 C 47.922744,144.4072 38.588236,132.14866 27.843667,121.84188 18.562445,112.42546 9.2812223,103.00905 0,93.592643 8.8411581,84.601011 17.682316,75.609378 26.523474,66.617745 Z"
+       id="path867"
+       inkscape:connector-curvature="0" />
+    <path
+       d="M211.650871,20.9684206 L256.000036,66.0723181 L229.369163,93.1561213 L185.019997,48.0526002 C172.134309,34.9472962 151.409282,34.9472962 138.523594,48.0526002 L103.409886,83.7641174 C98.3627849,88.8970177 90.0944496,88.8970177 85.0473481,83.7641174 L67.6513305,66.0723181 L112.000345,20.9684206 C139.489964,-6.98947353 184.161252,-6.98947353 211.650871,20.9684206 L211.650871,20.9684206 Z"
+       id="path869"
+       fill="#029D74" />
+  </g>
+</svg>
