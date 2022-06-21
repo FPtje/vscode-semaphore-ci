@@ -421,7 +421,7 @@ function jobToIcon(job: types.Job): { light: string; dark: string; } {
 					iconName = "status-stopped.svg";
 					break;
 				}
-			}openJobLogs;
+			};
 		}
 	}
 	if (!iconName) {
