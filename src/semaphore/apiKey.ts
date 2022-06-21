@@ -63,6 +63,12 @@ function markApiKeySet(set: boolean) {
     vscode.commands.executeCommand('setContext', 'semaphore-ci.apiKeySet', set);
 }
 
+/** Whether the API key is set */
+export async function isApiKeySet(): Promise<boolean> {
+    let apiKey = await getApiKey();
+    return !!apiKey;
+}
+
 /** For the welcome screen that says the API key is not set. */
 export function markApiKeyIncorrect(incorrect: boolean) {
     vscode.commands.executeCommand('setContext', 'semaphore-ci.apiKeyIncorrect', incorrect);

@@ -54,6 +54,12 @@ async function createTreeDataProvider(): Promise<SemaphoreBranchProvider | undef
 		return;
 	}
 
+	// Don't start requesting things if the API key is not set.
+	const apiKeySet = await apiKey.isApiKeySet();
+	if (!apiKeySet) {
+		return;
+	}
+
 	const projects = await requests.getProjects(organisations);
 	const treeProvider = new SemaphoreBranchProvider(projects);
 
