@@ -76,7 +76,17 @@
 			{
 				"view": "semaphore-ci-current-branch",
 				"contents": "Get started with Semaphore CI by configuring your API key and connected organisations.\nYour API key can be found at [https://me.semaphoreci.com/account](https://me.semaphoreci.com/account).\n[Set API Key](command:semaphore-ci.setApiKey)\nSee the settings for instructions on finding the organisations:\n[Open settings](command:workbench.action.openSettings?%5B%22semaphoreci%22%5D)\nOnce the API Key and organisations are set, you can press the Refresh key at the top to refresh the view.",
-				"when": "semaphore-ci.apiKeySet == false || config.semaphore-ci.organisations == []"
+				"when": "!semaphore-ci.apiKeySet && config.semaphore-ci.organisations == []"
+			},
+			{
+				"view": "semaphore-ci-current-branch",
+				"contents": "Get started with Semaphore CI by configuring your API key.\nYour API key can be found at [https://me.semaphoreci.com/account](https://me.semaphoreci.com/account).\n[Set API Key](command:semaphore-ci.setApiKey)\nOnce the API Key and organisations are set, you can press the Refresh key at the top to refresh the view.",
+				"when": "!semaphore-ci.apiKeySet && config.semaphore-ci.organisations != []"
+			},
+			{
+				"view": "semaphore-ci-current-branch",
+				"contents": "Get started with Semaphore CI by configuring your connected organisations.\nSee the settings for instructions on finding the organisations:\n[Open settings](command:workbench.action.openSettings?%5B%22semaphoreci%22%5D)\nOnce the API Key and organisations are set, you can press the Refresh key at the top to refresh the view.",
+				"when": "semaphore-ci.apiKeySet && config.semaphore-ci.organisations == []"
 			},
 			{
 				"view": "semaphore-ci-current-branch",

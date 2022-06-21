@@ -12,6 +12,10 @@ export function activate(context: vscode.ExtensionContext) {
 
 	createTreeDataProvider().then(provider => { treeProvider = provider; });
 
+	// Get the API key to register that it is set. For now, nothing needs to be done with it. This
+	// will make sure that the right welcome screens are shown.
+	apiKey.getApiKey();
+
 	vscode.commands.registerCommand('semaphore-ci.openLogs', openJobLogs);
 
 	vscode.commands.registerCommand('semaphore-ci.refreshTree', () => {
