@@ -34,7 +34,3 @@ See [CHANGELOG](./CHANGELOG.md).
 ## Known Issues
 
 When opening a job's log while it is still running, it will not refresh, even after closing and reopening the job log.
-
-### 0.0.1
-
-Initial release
