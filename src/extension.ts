@@ -12,9 +12,14 @@ export function activate(context: vscode.ExtensionContext) {
 
 	createTreeDataProvider().then(provider => { treeProvider = provider; });
 
-	// Get the API key to register that it is set. For now, nothing needs to be done with it. This
-	// will make sure that the right welcome screens are shown.
-	apiKey.getApiKey();
+	// Get the API key to register that it is set. For now, nothing needs to be done with the key
+	// itself. This will make sure that the right welcome screens are shown at the right time. The
+	// semaphore-ci.initialized is set to indicate that it is known whether the API key is set.
+	// Without this, the "Set API Key" welcome screen would flash on startup, even if the API key is
+	// set.
+	apiKey.getApiKey().then(() =>
+		vscode.commands.executeCommand('setContext', 'semaphore-ci.initialized', true)
+	);
 
 	vscode.commands.registerCommand('semaphore-ci.openLogs', openJobLogs);
 

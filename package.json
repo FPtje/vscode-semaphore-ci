@@ -76,27 +76,27 @@
 			{
 				"view": "semaphore-ci-current-branch",
 				"contents": "Get started with Semaphore CI by configuring your API key and connected organisations.\nYour API key can be found at [https://me.semaphoreci.com/account](https://me.semaphoreci.com/account).\n[Set API Key](command:semaphore-ci.setApiKey)\nSee the settings for instructions on finding the organisations:\n[Open settings](command:workbench.action.openSettings?%5B%22semaphoreci%22%5D)\nOnce the API Key and organisations are set, you can press the Refresh key at the top to refresh the view.",
-				"when": "!semaphore-ci.apiKeySet && config.semaphore-ci.organisations == []"
+				"when": "semaphore-ci.initialized && !semaphore-ci.apiKeySet && config.semaphore-ci.organisations == []"
 			},
 			{
 				"view": "semaphore-ci-current-branch",
 				"contents": "Get started with Semaphore CI by configuring your API key.\nYour API key can be found at [https://me.semaphoreci.com/account](https://me.semaphoreci.com/account).\n[Set API Key](command:semaphore-ci.setApiKey)\nOnce the API Key and organisations are set, you can press the Refresh key at the top to refresh the view.",
-				"when": "!semaphore-ci.apiKeySet && config.semaphore-ci.organisations != []"
+				"when": "semaphore-ci.initialized && !semaphore-ci.apiKeySet && config.semaphore-ci.organisations != []"
 			},
 			{
 				"view": "semaphore-ci-current-branch",
 				"contents": "Get started with Semaphore CI by configuring your connected organisations.\nSee the settings for instructions on finding the organisations:\n[Open settings](command:workbench.action.openSettings?%5B%22semaphoreci%22%5D)\nOnce the API Key and organisations are set, you can press the Refresh key at the top to refresh the view.",
-				"when": "semaphore-ci.apiKeySet && config.semaphore-ci.organisations == []"
+				"when": "semaphore-ci.initialized && semaphore-ci.apiKeySet && config.semaphore-ci.organisations == []"
 			},
 			{
 				"view": "semaphore-ci-current-branch",
 				"contents": "The API key is set, but requests to semaphore return a HTTP/401 error, implying that the API key is either incorrect or does not have access to one or more of the configured organisations. Please do the following:\nReconfigure the API key:\n[Reconfigure API Key](command:semaphore-ci.setApiKey)\nVerify that all organisations in your settings are organisations that you have access to with the given API key:\n[Examine organisation settings](command:workbench.action.openSettings?%5B%22semaphoreci%22%5D)",
-				"when": "semaphore-ci.apiKeyIncorrect && semaphore-ci.apiKeySet"
+				"when": "semaphore-ci.initialized && semaphore-ci.apiKeyIncorrect && semaphore-ci.apiKeySet"
 			},
 			{
 				"view": "semaphore-ci-current-branch",
 				"contents": "You have not yet opened a folder. Please open a folder in the Explorer view.",
-				"when": "semaphore-ci.apiKeySet && config.semaphore-ci.organisations != [] && workspaceFolderCount == 0"
+				"when": "semaphore-ci.initialized && semaphore-ci.apiKeySet && config.semaphore-ci.organisations != [] && workspaceFolderCount == 0"
 			}
 		],
 		"menus": {
