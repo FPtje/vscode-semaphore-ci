@@ -455,11 +455,20 @@ function jobToIcon(job: types.Job): { light: string; dark: string; } {
 
 async function openJobLogs(jobElement: JobTreeItem) {
 	const organisation = jobElement.parent.project.spec.repository.owner;
+	let uriParameter = '';
+
+	// If the job is still running, add a time parameter, to make sure that re-opening the document
+	// re-runs the request. VS Code otherwise caches the document, even when closing it in the
+	// workspace.
+	if (jobElement.job.status !== types.JobStatus.finished) {
+		uriParameter = `?time=${new Date().getTime()}`;
+	}
+
 	const uri = vscode.Uri.parse(
-		`semaphore-ci-joblog:${organisation}/${jobElement.job.job_id}/${jobElement.job.name}.md`
+		`semaphore-ci-joblog:${organisation}/${jobElement.job.job_id}/${jobElement.job.name}.md${uriParameter}`
 	);
 	const doc = await vscode.workspace.openTextDocument(uri);
-	await vscode.window.showTextDocument(doc, { preview: false });
+	await vscode.window.showTextDocument(doc, { preview: true  });
 }
 
 class JobLogProvider implements vscode.TextDocumentContentProvider {
