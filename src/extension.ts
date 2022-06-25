@@ -244,13 +244,7 @@ class PipelineTreeItem extends SemaphoreTreeItem {
 		public readonly project: types.Project,
 		public readonly pipeline: types.Pipeline
 	) {
-		const timestamp = new Date(pipeline.created_at.seconds * 1000);
-
-		const months = (timestamp.getMonth() + 1).toString().padStart(2, "0");
-		const days = (timestamp.getDay() + 1).toString().padStart(2, "0");
-		const hour = (timestamp.getHours()).toString().padStart(2, "0");
-		const minute = (timestamp.getMinutes()).toString().padStart(2, "0");
-		const formatted = `${timestamp.getFullYear()}-${months}-${days} ${hour}:${minute}`;
+		const formatted = types.formatTime(pipeline.created_at.seconds);
 
 		super(formatted, vscode.TreeItemCollapsibleState.Collapsed);
 

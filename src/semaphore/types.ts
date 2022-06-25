@@ -149,3 +149,14 @@ export enum JobLogEventType {
     JobStarted = "job_started",
     jobFinished = "job_finished",
 }
+
+export function formatTime(seconds: number): string {
+    const timestamp = new Date(seconds * 1000);
+
+    const months = (timestamp.getMonth() + 1).toString().padStart(2, "0");
+    const days = (timestamp.getDay() + 1).toString().padStart(2, "0");
+    const hour = (timestamp.getHours()).toString().padStart(2, "0");
+    const minute = (timestamp.getMinutes()).toString().padStart(2, "0");
+
+    return `${timestamp.getFullYear()}-${months}-${days} ${hour}:${minute}`;
+}
