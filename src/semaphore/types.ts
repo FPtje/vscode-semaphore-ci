@@ -104,8 +104,6 @@ export type Job = {
     index: number,
 };
 
-export type JobLog = string;
-
 export enum JobStatus {
     pending = "PENDING",
     queued = "QUEUED",
@@ -117,4 +115,37 @@ export enum JobResult {
     passed = "PASSED",
     failed = "FAILED",
     stopped = "STOPPED",
+}
+
+// Related to job logs
+export type JobLog = {
+    next: null,
+    events: JobLogEvent[],
+};
+
+export type JobLogEvent = {
+    event: JobLogEventType
+    timestamp: number,
+
+    // cmd_output
+    output?: string,
+
+    // cmd_started and cmd_finished
+    directive?: string,
+
+    // cmd_finished
+    exit_code?: number,
+    started_at?: number,
+    finished_at?: number,
+
+    // job_finished
+    result?: BlockResult,
+};
+
+export enum JobLogEventType {
+    cmdStarted = "cmd_started",
+    cmdOutput = "cmd_output",
+    cmdFinished = "cmd_finished",
+    JobStarted = "job_started",
+    jobFinished = "job_finished",
 }

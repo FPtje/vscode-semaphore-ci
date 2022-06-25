@@ -5,6 +5,7 @@ import * as simpleGit from 'simple-git';
 import * as apiKey from './semaphore/apiKey';
 import * as types from './semaphore/types';
 import * as requests from './semaphore/requests';
+import * as jobLogRender from './semaphore/jobLogRender';
 
 // this method is called when the extension is activated, i.e. when the view is opened
 export function activate(context: vscode.ExtensionContext) {
@@ -454,7 +455,9 @@ function jobToIcon(job: types.Job): { light: string; dark: string; } {
 
 async function openJobLogs(jobElement: JobTreeItem) {
 	const organisation = jobElement.parent.project.spec.repository.owner;
-	const uri = vscode.Uri.parse(`semaphore-ci-joblog:${organisation}/${jobElement.job.job_id}`);
+	const uri = vscode.Uri.parse(
+		`semaphore-ci-joblog:${organisation}/${jobElement.job.job_id}/${jobElement.job.name}.md`
+	);
 	const doc = await vscode.workspace.openTextDocument(uri);
 	await vscode.window.showTextDocument(doc, { preview: false });
 }
@@ -467,11 +470,7 @@ class JobLogProvider implements vscode.TextDocumentContentProvider {
 		const organisation = pathElements[0];
 		const jobId = pathElements[1];
 		return requests.getJobLogs(organisation, jobId).then(jobLog => {
-			// Remove all terminal colour modifiers
-			const replacedJoblog = jobLog.replace(/\x1b\[[0-9;]*[a-zA-Z]/g, "");
-
-			return replacedJoblog;
+			return jobLogRender.renderJobLog(jobLog);
 		});
-
 	}
 }
