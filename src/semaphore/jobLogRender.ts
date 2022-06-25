@@ -1,4 +1,5 @@
 import formatDuration = require('format-duration');
+
 import * as types from './types';
 
 /** Render a job log to a nice string */
@@ -70,7 +71,15 @@ function eventsToOutputFormat(events: types.JobLogEvent[]): OutputFormat {
 /** Convert the messages list to a single representable string */
 function formatCommandOutput(commandOutput: string[]): string {
     let result = commandOutput.join("").trimEnd();
-    result = result.replace(/\x1b\[[0-9;]*[a-zA-Z]/g, "");
+
+    // From: https://github.com/chalk/ansi-regex
+    // License: MIT
+    const ansiRegex = [
+        '[\\u001B\\u009B][[\\]()#;?]*(?:(?:(?:(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]+)*|[a-zA-Z\\d]+(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]*)*)?\\u0007)',
+        '(?:(?:\\d{1,4}(?:;\\d{0,4})*)?[\\dA-PR-TZcf-nq-uy=><~]))'
+    ].join('|');
+
+    result = result.replace(RegExp(ansiRegex, 'g'), "");
 
     return result;
 }
