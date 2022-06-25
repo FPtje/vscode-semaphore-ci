@@ -1,3 +1,4 @@
+import formatDuration = require('format-duration');
 import * as types from './types';
 
 /** Render a job log to a nice string */
@@ -82,10 +83,11 @@ function renderOutputFormat(outputFormat: OutputFormat): string {
 }
 
 function renderCommandFormat(commandFormat: CommandFormat): string {
+    const duration = formatDuration(1000 * commandFormat.duration);
     let rendered = [
         `## ${commandFormat.command}`,
         "",
-        `Duration: ${commandFormat.duration} seconds`,
+        `Duration: ${duration}`,
         `Exit code: ${commandFormat.exitCode}`,
     ];
     if ('output' in commandFormat && commandFormat.output !== undefined && commandFormat.output !== "") {
