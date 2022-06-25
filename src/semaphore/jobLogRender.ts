@@ -81,7 +81,47 @@ function formatCommandOutput(commandOutput: string[]): string {
 
     result = result.replace(RegExp(ansiRegex, 'g'), "");
 
+    result = stripRewrittenLines(result);
+
     return result;
+}
+
+/**
+ * Some CLI applications use a single line in the terminal that is updated. This is done with
+ * carriage returns. For example, the following string is rewritten:
+ *
+ * ```
+ * Download status: 50%\rDownload status: 100%
+ * ```
+ *
+ * Is simply shown in the terminal as `Download status: 100%`. However, the job log would print all
+ * intermediate statuses if not filtered.
+ */
+function stripRewrittenLines(output: string): string {
+    let split = output.split('\n');
+
+    for (let index = 0; index < split.length; index++) {
+        let line = split[index];
+        const lastIndex = line.lastIndexOf('\r');
+
+        // Carriage return not found
+        if (lastIndex === -1) {
+            continue;
+        }
+
+        // Carriage return is found as the last character. Remove the last carriage return from the
+        // line and re-run the iteration. That way, the last printed line will be shown.
+        if (lastIndex === line.length - 1) {
+            split[index] = line.substring(0, line.length - 1); // remove last character
+            index = index - 1;
+        // Carriage return is found anywhere else: remove everything up to and including that
+        // carriage return.
+        } else {
+            split[index] = line.substring(lastIndex + 1);
+        }
+    }
+
+    return split.join('\n');
 }
 
 /** Pretty print the output format */
