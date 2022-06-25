@@ -30,7 +30,3 @@ There is also a setting to set the API key, but that will be stored in a file in
 ## Release Notes
 
 See [CHANGELOG](./CHANGELOG.md).
-
-## Known Issues
-
-When opening a job's log while it is still running, it will not refresh, even after closing and reopening the job log.
