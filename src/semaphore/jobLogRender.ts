@@ -15,6 +15,7 @@ function eventsToOutputFormat(events: types.JobLogEvent[]): OutputFormat {
         command: "",
         duration: 0,
         exitCode: 0,
+        ongoing: true,
     };
     let currentCommand: CommandFormat | null = null;
     let currentOutput: string[] = [];
@@ -48,6 +49,7 @@ function eventsToOutputFormat(events: types.JobLogEvent[]): OutputFormat {
                 currentCommand.duration = finishedAt - startedAt;
                 currentCommand.exitCode = exitCode;
                 currentCommand.output = formatCommandOutput(currentOutput);
+                currentCommand.ongoing = false;
 
                 commands.push(currentCommand);
                 currentCommand = null;
@@ -63,6 +65,13 @@ function eventsToOutputFormat(events: types.JobLogEvent[]): OutputFormat {
                 break;
             }
         }
+    }
+
+    // If there is an ongoing build, the last command may not be finished yet. Add it as final
+    // value.
+    if (currentCommand !== null) {
+        currentCommand.output = formatCommandOutput(currentOutput);
+        commands.push(currentCommand);
     }
 
     return commands;
@@ -136,9 +145,13 @@ function renderCommandFormat(commandFormat: CommandFormat): string {
     let rendered = [
         `## ${commandFormat.command}`,
         "",
-        `Duration: ${duration}`,
-        `Exit code: ${commandFormat.exitCode}`,
+        `Duration: ${commandFormat.ongoing ? "Still ongoing" : duration}`,
     ];
+
+    if (!commandFormat.ongoing) {
+        rendered.push(`Exit code: ${commandFormat.exitCode}`);
+    }
+
     if ('output' in commandFormat && commandFormat.output !== undefined && commandFormat.output !== "") {
         rendered = rendered.concat([
             "",
@@ -160,5 +173,6 @@ type CommandFormat = {
     command: string,
     duration: number,
     exitCode: number,
+    ongoing: boolean,
     output?: string,
 };
