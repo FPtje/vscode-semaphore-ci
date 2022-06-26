@@ -142,8 +142,10 @@ function renderOutputFormat(outputFormat: OutputFormat): string {
 
 function renderCommandFormat(commandFormat: CommandFormat): string {
     const duration = formatDuration(1000 * commandFormat.duration);
+    // Change newlines such that the next line starts with `##`.
+    const command = commandFormat.command.trimEnd().replace(/\n/g, "\n## ");
     let rendered = [
-        `## ${commandFormat.command}`,
+        `## ${command}`,
         "",
         `Duration: ${commandFormat.ongoing ? "Still ongoing" : duration}`,
     ];
