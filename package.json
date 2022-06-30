@@ -51,7 +51,15 @@
 					"type": "array",
 					"items": {
 						"type": "string"
-					}
+					},
+					"order": 0
+				},
+				"semaphore-ci.autorefreshDelay": {
+					"markdownDescription": "Controls the time between the automatic refreshes in milliseconds. Set to 0 to disable.",
+					"type": "number",
+					"minimum": 0,
+					"default": 5000,
+					"order": 1
 				}
 			}
 		},

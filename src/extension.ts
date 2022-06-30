@@ -11,7 +11,13 @@ import * as jobLogRender from './semaphore/jobLogRender';
 export function activate(context: vscode.ExtensionContext) {
 	let treeProvider: SemaphoreBranchProvider | undefined;
 
-	createTreeDataProvider().then(provider => { treeProvider = provider; });
+	createTreeDataProvider().then(provider => {
+		treeProvider = provider;
+
+		if (provider) {
+			refreshTreeLoop(provider);
+		}
+	});
 
 	// Get the API key to register that it is set. For now, nothing needs to be done with the key
 	// itself. This will make sure that the right welcome screens are shown at the right time. The
@@ -273,6 +279,21 @@ class JobTreeItem extends SemaphoreTreeItem {
 		this.description = block.name;
 		this.iconPath = jobToIcon(job);
 		this.contextValue = "semaphoreJob";
+	}
+}
+
+async function refreshTreeLoop(provider: SemaphoreBranchProvider) {
+	while (true) {
+		let delay: number = vscode?.workspace?.getConfiguration("semaphore-ci")?.autorefreshDelay;
+
+		if(!delay) {
+			// Check the setting again in 10 seconds
+			await new Promise(f => setTimeout(f, 10000));
+			continue;
+		}
+
+		await new Promise(f => setTimeout(f, delay));
+		provider.refresh();
 	}
 }
 
