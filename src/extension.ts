@@ -36,7 +36,7 @@ export function activate(context: vscode.ExtensionContext) {
 			return;
 		}
 
-		treeProvider.refresh();
+		treeProvider.refreshNow();
 	});
 
 	let disposable = vscode.commands.registerCommand('semaphore-ci.setApiKey', async () => {
@@ -109,27 +109,50 @@ export class SemaphoreBranchProvider implements vscode.TreeDataProvider<Semaphor
 			undefined
 		> = this._onDidChangeTreeData.event;
 
-	refresh(): void {
+	private isRefreshing: boolean = true;
+
+	/**  Refresh immediately. Any ongoing refresh will be canceled
+	*/
+	refreshNow(): void {
 		this._onDidChangeTreeData.fire();
 	}
 
+	/**  Refresh if not already refreshing. If a refresh is ongoing, that will finish instead
+	*/
+	refreshIfIdle(): void {
+		if (!this.isRefreshing) {
+			this._onDidChangeTreeData.fire();
+		}
+	}
+
 	getChildren(element?: SemaphoreTreeItem): vscode.ProviderResult<SemaphoreTreeItem[]> {
+		let providerResult;
+		this.isRefreshing = true;
+
 		// Top level: List workspace folders and their branch
 		if (!element) {
-			return this.getWorkspaceFolders();
+			providerResult = this.getWorkspaceFolders();
 		}
 
 		// Second level: List pipelines
 		if (element instanceof WorkspaceDirectoryTreeItem) {
-			return this.getPipelines(element);
+			providerResult = this.getPipelines(element);
 		}
 
 		// Third level: Pipeline details
 		if (element instanceof PipelineTreeItem) {
-			return this.getPipelineDetails(element);
+			providerResult = this.getPipelineDetails(element);
 		}
 
-		return [];
+		if (!providerResult) {
+			this.isRefreshing = false;
+			return [];
+		}
+
+		return Promise.resolve(providerResult).then((result) => {
+			this.isRefreshing = false;
+			return result;
+		});
 	}
 
 	getTreeItem(element: SemaphoreTreeItem): vscode.TreeItem | Thenable<vscode.TreeItem> {
@@ -292,8 +315,14 @@ async function refreshTreeLoop(provider: SemaphoreBranchProvider) {
 			continue;
 		}
 
-		await new Promise(f => setTimeout(f, delay));
-		provider.refresh();
+		if (delay > 0){
+			await new Promise(f => setTimeout(f, delay));
+		}
+
+		// Only refresh when the tree is not already refreshing. Otherwise this call would cancel
+		// the existing refresh. If that happens every time, the refresh never actually finishes,
+		// effectively causing it never to refresh at all.
+		provider.refreshIfIdle();
 	}
 }
 
