@@ -107,6 +107,11 @@ async function refreshTreeLoop(provider: branchTreeView.SemaphoreBranchProvider)
 }
 
 async function openJobLogs(jobElement: branchTreeView.JobTreeItem) {
+	if (!jobElement) {
+		console.warn("open job logs button pressed, but the element passed is undefined. This is a VS Code bug. Ignoring button press.");
+		return;
+	}
+
 	const organisation = jobElement.parent.project.spec.repository.owner;
 	let uriParameter = '';
 
