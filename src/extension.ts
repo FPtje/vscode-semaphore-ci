@@ -31,7 +31,6 @@ export function activate(context: vscode.ExtensionContext) {
 
 	vscode.commands.registerCommand('semaphore-ci.refreshTree', () => {
 		if (!treeProvider) {
-			createTreeDataProvider().then(provider => { treeProvider = provider; });
 			return;
 		}
 
