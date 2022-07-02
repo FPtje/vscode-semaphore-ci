@@ -272,10 +272,7 @@ function jobToIcon(job: types.Job): { light: string; dark: string; } {
 		iconName = "pending.svg";
 	}
 
-	return {
-		light: path.join(__filename, '..', '..', '..', 'resources', 'light', iconName),
-		dark: path.join(__filename, '..', '..', '..', 'resources', 'dark', iconName)
-	};
+	return resource(iconName);
 }
 
 /** Use the block state and status to produce an icon */
@@ -332,10 +329,7 @@ function blockToIcon(
 		iconName = "pending.svg";
 	}
 
-	return {
-		light: path.join(__filename, '..', '..', '..', 'resources', 'light', iconName),
-		dark: path.join(__filename, '..', '..', '..', 'resources', 'dark', iconName)
-	};
+	return resource(iconName);
 }
 
 /** Pipeline status icon from state and result */
@@ -397,7 +391,12 @@ function stateAndResultToIcon(
 		iconName = "pending.svg";
 	}
 
-	return {
+	return resource(iconName);
+}
+
+/** Helper function to define an icon path */
+function resource(iconName: string): { light: string; dark: string; } {
+    return {
 		light: path.join(__filename, '..', '..', '..', 'resources', 'light', iconName),
 		dark: path.join(__filename, '..', '..', '..', 'resources', 'dark', iconName)
 	};
