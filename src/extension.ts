@@ -73,10 +73,14 @@ async function createTreeDataProvider(): Promise<branchTreeView.SemaphoreBranchP
 	const projects = await requests.getProjects(organisations);
 	const treeProvider = new branchTreeView.SemaphoreBranchProvider(projects);
 
-	vscode.window.registerTreeDataProvider(
-		"semaphore-ci-current-branch",
-		treeProvider
-	);
+	let treeView = vscode.window.createTreeView('semaphore-ci-current-branch', {
+		treeDataProvider: treeProvider
+	});
+
+	treeProvider.treeview = treeView;
+
+	treeView.onDidExpandElement(event => treeProvider.onExpandElement(event));
+	treeView.onDidCollapseElement(event => treeProvider.onCollapseElement(event));
 
 	return treeProvider;
 }

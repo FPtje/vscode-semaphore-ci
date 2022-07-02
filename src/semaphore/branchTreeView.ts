@@ -39,6 +39,8 @@ export class SemaphoreBranchProvider implements vscode.TreeDataProvider<Semaphor
 
     /** Holds the tree of items. This variable is populated by `this.buildBranchTree()` */
     private branchTree: WorkspaceDirectoryTreeItem[] | null = null;
+    private expandedPipelines: Set<string> = new Set();
+    public treeview: vscode.TreeView<SemaphoreTreeItem> | null = null;
 
 	/**  Refresh immediately. Any ongoing refresh will be canceled
 	*/
@@ -61,6 +63,19 @@ export class SemaphoreBranchProvider implements vscode.TreeDataProvider<Semaphor
         this.isRefreshing = true;
         const workspaceFolders = await this.getWorkspaceFolders();
 
+		// Workaround: Through treeview's onDidExpandElement and onDidCollapseElement events, we
+		// keep track of which pipelines to get the details of. However, due to some race condition
+		// with refreshing, those events do not always fire. This can lead to elements being
+		// expanded without us knowing about it. With this we assume that a selected item is being
+		// expanded. Details are always requested of selected pipelines.
+        if (this.treeview) {
+            for (const selected of this.treeview.selection) {
+                if (selected instanceof PipelineTreeItem) {
+                    this.expandedPipelines.add(selected.pipeline.ppl_id);
+                }
+            }
+        }
+
         for (const workspaceFolder of workspaceFolders) {
             workspaceFolder.children = await this.getPipelines(workspaceFolder);
 
@@ -71,6 +86,13 @@ export class SemaphoreBranchProvider implements vscode.TreeDataProvider<Semaphor
                 }
 
                 if (pipelineTreeItem instanceof PipelineTreeItem) {
+					const pipelineId = pipelineTreeItem.pipeline.ppl_id;
+                    // Optimization: Do not load pipeline details if the item is not expanded in the
+                    // tree view.
+                    if (!this.expandedPipelines.has(pipelineId)) {
+                        continue;
+                    };
+
                     promises.push(this.getPipelineDetails(pipelineTreeItem).then(children => {
                         pipelineTreeItem.children = children;
                     }));
@@ -81,6 +103,32 @@ export class SemaphoreBranchProvider implements vscode.TreeDataProvider<Semaphor
 
         this.branchTree = workspaceFolders;
         this.isRefreshing = false;
+    }
+
+    /** Keep track of expanded and collapsed pipelines to optimize loading
+	 *
+	 * NOTE: this event does NOT always get called. Notably it doesn't when the tree view is
+	 * refreshing.
+	*/
+    public onExpandElement(event: vscode.TreeViewExpansionEvent<SemaphoreTreeItem>) {
+        if (event.element instanceof PipelineTreeItem) {
+            const pipelineId = event.element.pipeline.ppl_id;
+            if (!this.expandedPipelines.has(pipelineId)) {
+                this.expandedPipelines.add(pipelineId);
+                this.buildBranchTree().then(() => this._onDidChangeTreeData.fire());
+            }
+        }
+    }
+
+    /** Keep track of expanded and collapsed pipelines to optimize loading.
+	 *
+	 * NOTE: this event does NOT always get called. Notably it doesn't when the tree view is
+	 * refreshing.
+	*/
+    public onCollapseElement(event: vscode.TreeViewExpansionEvent<SemaphoreTreeItem>) {
+        if (event.element instanceof PipelineTreeItem) {
+            this.expandedPipelines.delete(event.element.pipeline.ppl_id);
+        }
     }
 
 	getChildren(element?: SemaphoreTreeItem): vscode.ProviderResult<SemaphoreTreeItem[]> {
