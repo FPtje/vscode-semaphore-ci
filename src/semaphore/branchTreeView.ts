@@ -37,60 +37,83 @@ export class SemaphoreBranchProvider implements vscode.TreeDataProvider<Semaphor
 
 	private isRefreshing: boolean = true;
 
+    /** Holds the tree of items. This variable is populated by `this.buildBranchTree()` */
+    private branchTree: WorkspaceDirectoryTreeItem[] | null = null;
+
 	/**  Refresh immediately. Any ongoing refresh will be canceled
 	*/
-	refreshNow(): void {
+	async refreshNow() {
+        await this.buildBranchTree();
 		this._onDidChangeTreeData.fire();
 	}
 
 	/**  Refresh if not already refreshing. If a refresh is ongoing, that will finish instead
 	*/
-	refreshIfIdle(): void {
+	async refreshIfIdle() {
 		if (!this.isRefreshing) {
+            await this.buildBranchTree();
 			this._onDidChangeTreeData.fire();
 		}
 	}
 
+    /** Gathers the data for the tree view and populates `this.branchTree` */
+    async buildBranchTree() {
+        this.isRefreshing = true;
+        const workspaceFolders = await this.getWorkspaceFolders();
+
+        for (const workspaceFolder of workspaceFolders) {
+            workspaceFolder.children = await this.getPipelines(workspaceFolder);
+
+            let promises: Promise<any>[] = [];
+            for (const pipelineTreeItem of workspaceFolder.children) {
+                if (pipelineTreeItem instanceof NoSuitableProjectTreeItem) {
+                    break;
+                }
+
+                if (pipelineTreeItem instanceof PipelineTreeItem) {
+                    promises.push(this.getPipelineDetails(pipelineTreeItem).then(children => {
+                        pipelineTreeItem.children = children;
+                    }));
+                }
+            }
+            await Promise.all(promises);
+        }
+
+        this.branchTree = workspaceFolders;
+        this.isRefreshing = false;
+    }
+
 	getChildren(element?: SemaphoreTreeItem): vscode.ProviderResult<SemaphoreTreeItem[]> {
-		let providerResult;
-		this.isRefreshing = true;
+        if (!element && !this.branchTree) {
+            // First population of the branch tree
+            return this.buildBranchTree().then(() => this.getChildren(element));
+        }
 
-		// Top level: List workspace folders and their branch
-		if (!element) {
-			providerResult = this.getWorkspaceFolders();
-		}
+        if (!element) {
+            return this.branchTree;
+        }
 
-		// Second level: List pipelines
-		if (element instanceof WorkspaceDirectoryTreeItem) {
-			providerResult = this.getPipelines(element);
-		}
+        if (element instanceof WorkspaceDirectoryTreeItem) {
+            return element.children;
+        }
 
-		// Third level: Pipeline details
-		if (element instanceof PipelineTreeItem) {
-			providerResult = this.getPipelineDetails(element);
-		}
+        if (element instanceof PipelineTreeItem) {
+            return element.children;
+        }
 
-		if (!providerResult) {
-			this.isRefreshing = false;
-			return [];
-		}
-
-		return Promise.resolve(providerResult).then((result) => {
-			this.isRefreshing = false;
-			return result;
-		});
+        return [];
 	}
 
 	getTreeItem(element: SemaphoreTreeItem): vscode.TreeItem | Thenable<vscode.TreeItem> {
 		return element;
 	}
 
-	async getWorkspaceFolders(): Promise<SemaphoreTreeItem[]> {
+	async getWorkspaceFolders(): Promise<WorkspaceDirectoryTreeItem[]> {
 		let workspaceFolders = vscode.workspace.workspaceFolders;
 		if (!workspaceFolders || workspaceFolders.length === 0) {
 			return [];
 		}
-		let res: SemaphoreTreeItem[] = [];
+		let res: WorkspaceDirectoryTreeItem[] = [];
 
 		for (const workspaceFolder of workspaceFolders) {
 			const gitRepo = simpleGit.default(workspaceFolder.uri.fsPath);
@@ -171,10 +194,12 @@ export class SemaphoreBranchProvider implements vscode.TreeDataProvider<Semaphor
 /**
  *  Generic class for everything that's put in the tree view.
 */
-class SemaphoreTreeItem extends vscode.TreeItem {
+export class SemaphoreTreeItem extends vscode.TreeItem {
 }
 
 class WorkspaceDirectoryTreeItem extends SemaphoreTreeItem {
+    public children: SemaphoreTreeItem[] = [];
+
 	constructor(
 		public readonly workspaceFolder: vscode.WorkspaceFolder,
 		public readonly gitRepo: simpleGit.SimpleGit,
@@ -195,6 +220,8 @@ class NoSuitableProjectTreeItem extends SemaphoreTreeItem {
 }
 
 class PipelineTreeItem extends SemaphoreTreeItem {
+    public children: SemaphoreTreeItem[] = [];
+
 	constructor(
 		public readonly project: types.Project,
 		public readonly pipeline: types.Pipeline
