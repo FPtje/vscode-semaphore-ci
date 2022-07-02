@@ -187,7 +187,7 @@ class WorkspaceDirectoryTreeItem extends SemaphoreTreeItem {
 	}
 }
 
-/** Shown when no suitable project is found for  */
+/** Shown when no suitable project is found for a workspace */
 class NoSuitableProjectTreeItem extends SemaphoreTreeItem {
 	constructor() {
 		super("No suitable Semaphore project found", vscode.TreeItemCollapsibleState.None);
