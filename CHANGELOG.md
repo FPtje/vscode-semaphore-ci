@@ -5,6 +5,17 @@ All notable changes to the "semaphoreci" extension will be documented in this fi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 22-07-03
+
+### Added
+
+- Button to stop jobs.
+- Button to rerun workflows.
+
+### Fixed
+
+- Workaround for buttons not working. See https://github.com/FPtje/vscode-semaphore-ci/issues/5
+
 ## [0.1.1] - 22-07-01
 
 ### Fixed
