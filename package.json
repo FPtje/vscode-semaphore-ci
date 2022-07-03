@@ -38,8 +38,8 @@
 				"command": "semaphore-ci.rerunWorkflow",
 				"title": "Rerun",
 				"icon": {
-					"light": "resources/light/refresh.svg",
-					"dark": "resources/dark/refresh.svg"
+					"light": "resources/light/restart.svg",
+					"dark": "resources/dark/restart.svg"
 				}
 			},
 			{
