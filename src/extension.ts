@@ -29,6 +29,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 	vscode.commands.registerCommand('semaphore-ci.openLogs', openJobLogs);
 	vscode.commands.registerCommand('semaphore-ci.rerunWorkflow', rerunWorkflow);
+	vscode.commands.registerCommand('semaphore-ci.stopJob', stopJob);
 
 	vscode.commands.registerCommand('semaphore-ci.refreshTree', () => {
 		if (!treeProvider) {
@@ -128,6 +129,21 @@ async function openJobLogs(jobElement: branchTreeView.JobTreeItem) {
 	);
 	const doc = await vscode.workspace.openTextDocument(uri);
 	await vscode.window.showTextDocument(doc, { preview: true  });
+}
+
+async function stopJob(jobElement: branchTreeView.JobTreeItem) {
+	if (!jobElement) {
+		console.warn("Stop job button pressed, but the element passed is undefined. This is a VS Code bug. Ignoring button press.");
+		return;
+	}
+
+	const organisation = jobElement.parent.project.spec.repository.owner;
+
+	await requests.stopJob(organisation, jobElement.job.job_id);
+	const buttonPressed = await vscode.window.showInformationMessage("Semaphore-ci: Stop job submitted", "refresh");
+	if (buttonPressed) {
+		vscode.commands.executeCommand("semaphore-ci.refreshTree");
+	}
 }
 
 async function rerunWorkflow(pipelineElement: branchTreeView.PipelineTreeItem) {

@@ -54,6 +54,13 @@ export async function getJobLogs(organisation: string, jobId: string): Promise<t
     return response.data;
 }
 
+export async function stopJob(organisation: string, jobId: string): Promise<void> {
+    const base = baseUrl(organisation, ResourceName.jobs);
+    const url = `${base}/${jobId}/stop`;
+
+    await semaphorePost<void>(url);
+}
+
 /** Resubmit a workflow for rerunning */
 export async function rerunWorkflow(organisation: string, workflowId: string): Promise<void> {
     const base = baseUrl(organisation, ResourceName.workflows);

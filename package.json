@@ -35,6 +35,14 @@
 				}
 			},
 			{
+				"command": "semaphore-ci.stopJob",
+				"title": "Stop job",
+				"icon": {
+					"light": "resources/light/stop.svg",
+					"dark": "resources/dark/stop.svg"
+				}
+			},
+			{
 				"command": "semaphore-ci.rerunWorkflow",
 				"title": "Rerun",
 				"icon": {
@@ -125,8 +133,13 @@
 			],
 			"view/item/context": [
 				{
+					"command": "semaphore-ci.stopJob",
+					"when": "view == semaphore-ci-current-branch && viewItem == semaphoreJobRunning",
+					"group": "inline"
+				},
+				{
 					"command": "semaphore-ci.openLogs",
-					"when": "view == semaphore-ci-current-branch && viewItem == semaphoreJob",
+					"when": "view == semaphore-ci-current-branch && viewItem =~ /^semaphoreJob[a-zA-Z]+$/",
 					"group": "inline"
 				},
 				{

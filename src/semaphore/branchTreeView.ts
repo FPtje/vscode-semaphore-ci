@@ -303,7 +303,16 @@ export class JobTreeItem extends SemaphoreTreeItem {
 		super(job.name, vscode.TreeItemCollapsibleState.None);
 		this.description = block.name;
 		this.iconPath = jobToIcon(job);
-		this.contextValue = "semaphoreJob";
+
+		switch (job.status) {
+			case types.JobStatus.finished: {
+				this.contextValue = "semaphoreJob";
+				break;
+			}
+			default: {
+				this.contextValue = "semaphoreJobRunning";
+			}
+		}
 	}
 }
 
