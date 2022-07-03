@@ -48,6 +48,8 @@ export type CreatedAt = {
 export type Pipeline = {
     /** pipeline id */
     ppl_id: string;
+    /** workflow id */
+    wf_id: string;
     state: PipelineState;
     result: PipelineResult;
     created_at: CreatedAt;

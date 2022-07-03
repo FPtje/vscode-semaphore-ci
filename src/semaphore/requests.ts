@@ -1,4 +1,5 @@
 import axios, { AxiosError, AxiosResponse } from 'axios';
+import {v4 as uuidv4} from 'uuid';
 
 import * as types from './types';
 import * as apiKey from './apiKey';
@@ -53,6 +54,18 @@ export async function getJobLogs(organisation: string, jobId: string): Promise<t
     return response.data;
 }
 
+/** Resubmit a workflow for rerunning */
+export async function rerunWorkflow(organisation: string, workflowId: string): Promise<void> {
+    const base = baseUrl(organisation, ResourceName.workflows);
+    // Idempotency token (can be any string). Let's set it to an uuid to make sure every call of
+    // this function runs the restart. The choice of uuid was informed by the `sem` tool, which also
+    // uses a UUID here.
+    const requestToken = uuidv4();
+    const url = `${base}/${workflowId}/reschedule`;
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    const response = await semaphorePost(url, {request_token: requestToken});
+}
+
 /** Kinds of resources that can be accessed through the semaphore API */
 enum ResourceName {
     projects = "projects",
@@ -73,6 +86,25 @@ async function semaphoreGet<T = any>(url: string, params: object = {}):
     return retryRequest(() => axios.get<T>(
         url,
         { headers: { authorization: `Token ${key}` }, params: params })
+    );
+};
+
+async function semaphorePost<T = any>(url: string, params: object = {}):
+    Promise<AxiosResponse<T, any>> {
+    const key = await apiKey.getApiKey();
+
+    return retryRequest(() => axios.post<T>(
+        url, null, {
+            headers: {
+                authorization: `Token ${key}`,
+                // eslint-disable-next-line @typescript-eslint/naming-convention
+                "Content-Type": "application/json",
+
+                // eslint-disable-next-line @typescript-eslint/naming-convention
+                "User-Agent": "SemaphoreCI v2.0 Client",
+            },
+            params: params
+        })
     );
 };
 

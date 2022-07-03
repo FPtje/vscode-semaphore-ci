@@ -267,7 +267,7 @@ class NoSuitableProjectTreeItem extends SemaphoreTreeItem {
 	}
 }
 
-class PipelineTreeItem extends SemaphoreTreeItem {
+export class PipelineTreeItem extends SemaphoreTreeItem {
     public children: SemaphoreTreeItem[] = [];
 
 	constructor(
@@ -280,6 +280,7 @@ class PipelineTreeItem extends SemaphoreTreeItem {
 
 		this.description = pipeline.commit_message;
 		this.iconPath = stateAndResultToIcon(pipeline.state, pipeline.result);
+		this.contextValue = "semaphorePipeline";
 	}
 }
 

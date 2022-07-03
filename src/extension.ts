@@ -28,6 +28,7 @@ export function activate(context: vscode.ExtensionContext) {
 	);
 
 	vscode.commands.registerCommand('semaphore-ci.openLogs', openJobLogs);
+	vscode.commands.registerCommand('semaphore-ci.rerunWorkflow', rerunWorkflow);
 
 	vscode.commands.registerCommand('semaphore-ci.refreshTree', () => {
 		if (!treeProvider) {
@@ -127,6 +128,20 @@ async function openJobLogs(jobElement: branchTreeView.JobTreeItem) {
 	);
 	const doc = await vscode.workspace.openTextDocument(uri);
 	await vscode.window.showTextDocument(doc, { preview: true  });
+}
+
+async function rerunWorkflow(pipelineElement: branchTreeView.PipelineTreeItem) {
+	if (!pipelineElement) {
+		console.warn("Rerun pipeline button pressed, but the element passed is undefined. This is a VS Code bug. Ignoring button press.");
+		return;
+	}
+	const organisation = pipelineElement.project.spec.repository.owner;
+
+	await requests.rerunWorkflow(organisation, pipelineElement.pipeline.wf_id);
+	const buttonPressed = await vscode.window.showInformationMessage("Semaphore-ci: Rerun submitted", "refresh");
+	if (buttonPressed) {
+		vscode.commands.executeCommand("semaphore-ci.refreshTree");
+	}
 }
 
 class JobLogProvider implements vscode.TextDocumentContentProvider {
