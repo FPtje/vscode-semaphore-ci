@@ -63,7 +63,7 @@ export async function rerunWorkflow(organisation: string, workflowId: string): P
     const requestToken = uuidv4();
     const url = `${base}/${workflowId}/reschedule`;
     // eslint-disable-next-line @typescript-eslint/naming-convention
-    const response = await semaphorePost(url, {request_token: requestToken});
+    await semaphorePost(url, {request_token: requestToken});
 }
 
 /** Kinds of resources that can be accessed through the semaphore API */
