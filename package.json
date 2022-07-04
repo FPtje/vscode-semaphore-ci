@@ -139,7 +139,12 @@
 				},
 				{
 					"command": "semaphore-ci.openLogs",
-					"when": "view == semaphore-ci-current-branch && viewItem =~ /^semaphoreJob[a-zA-Z]+$/",
+					"when": "view == semaphore-ci-current-branch && viewItem == semaphoreJob",
+					"group": "inline"
+				},
+				{
+					"command": "semaphore-ci.openLogs",
+					"when": "view == semaphore-ci-current-branch && viewItem == semaphoreJobRunning",
 					"group": "inline"
 				},
 				{
