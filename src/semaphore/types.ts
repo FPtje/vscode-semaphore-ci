@@ -63,6 +63,7 @@ export type PipelineDetails = {
 };
 
 export enum PipelineState {
+    pending = "PENDING",
     queuing = "QUEUING",
     initializing = "INITIALIZING",
     running = "RUNNING",
