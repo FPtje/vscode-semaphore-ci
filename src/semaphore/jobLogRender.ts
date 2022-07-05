@@ -191,6 +191,7 @@ function renderJobDescription(jobDescription: types.JobDescription): string {
     if (jobDescription.status.state === types.JobStatus.finished){
         const finishTime = parseInt(jobDescription.metadata.finish_time || "0", 10);
         rendered.push(`Finished: ${types.formatTime(finishTime)}`);
+        rendered.push(`Job duration: ${formatDuration(1000 * (finishTime - startTime))}`);
     } else {
         rendered.push("Still ongoing");
     }
