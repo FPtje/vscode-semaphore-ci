@@ -14,18 +14,25 @@ Open the logs of a (failed) job and see where it goes wrong!
 
 ![Open job logs](./images/semaphore-ci-open-logs.png)
 
+Other notable features:
+
+- Automatic refreshing of the main view
+- Stop a running job
+- Re-run workflows with a single button
+
 ## Extension Settings
 
 This extension contributes the following settings:
 
-* `semaphore-ci.organisations`: The list of organisations that you have access to.
+- `semaphore-ci.organisations`: The list of organisations that you have access to.
+- `semaphore-ci.autorefreshDelay`: The delay between automatic refreshes.
 
 There is also a setting to set the API key, but that will be stored in a file in your home/config directory. This is not stored in the settings because it is unwise to leave an API key in a place that is synchronised to a cloud and other machines.
 
 ## Credits
 
-* Semaphore logo taken from [gilbarbara/logos](https://github.com/gilbarbara/logos) ([LICENSE](https://github.com/gilbarbara/logos/blob/40f3135/LICENSE.txt)).
-* Some other logos taken and modified from the [vscode/python](https://github.com/microsoft/vscode-python) extension ([LICENSE](https://github.com/microsoft/vscode-python/blob/1187381/LICENSE)).
+- Semaphore logo taken from [gilbarbara/logos](https://github.com/gilbarbara/logos) ([LICENSE](https://github.com/gilbarbara/logos/blob/40f3135/LICENSE.txt)).
+- Some other logos taken and modified from the [vscode/python](https://github.com/microsoft/vscode-python) extension ([LICENSE](https://github.com/microsoft/vscode-python/blob/1187381/LICENSE)).
 
 ## Release Notes
 
