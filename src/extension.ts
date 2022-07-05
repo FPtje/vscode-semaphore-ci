@@ -163,12 +163,21 @@ async function rerunWorkflow(pipelineElement: branchTreeView.PipelineTreeItem) {
 class JobLogProvider implements vscode.TextDocumentContentProvider {
 	constructor() { }
 
-	provideTextDocumentContent(uri: vscode.Uri, _token: vscode.CancellationToken): vscode.ProviderResult<string> {
+	provideTextDocumentContent(uri: vscode.Uri, token: vscode.CancellationToken): vscode.ProviderResult<string> {
 		const pathElements = uri.path.split('/');
 		const organisation = pathElements[0];
 		const jobId = pathElements[1];
-		return requests.getJobLogs(organisation, jobId).then(jobLog => {
-			return jobLogRender.renderJobLog(jobLog);
+
+		let promises: [Promise<types.JobDescription>, Promise<types.JobLog>] = [
+			requests.getJobDescription(organisation, jobId),
+			requests.getJobLogs(organisation, jobId),
+		];
+		return Promise.all(promises).then(([description, logs]) => {
+			if (token.isCancellationRequested) {
+				return;
+			}
+
+			return jobLogRender.renderJobLog(description, logs);
 		});
 	}
 }

@@ -145,6 +145,37 @@ export type JobLogEvent = {
     result?: BlockResult,
 };
 
+export type JobDescription = {
+    metadata: JobDescriptionMetadata,
+    spec: JobDescriptionSpec,
+    status: JobDescriptionStatus
+};
+
+export type JobDescriptionMetadata = {
+    name: string,
+    id: string,
+    create_time: string,
+    update_time: string,
+    start_time: string,
+    finish_time: string | undefined,
+};
+
+export type JobDescriptionSpec = {
+    project_id: string,
+    agent: any,
+    env_vars: [{name: string, value: string}],
+    commands: string[],
+};
+
+export type JobDescriptionStatus = {
+    result: JobResult,
+    state: JobStatus,
+    agent: {
+        ip: string,
+        ports: [{name: string, number: number}],
+    },
+};
+
 export enum JobLogEventType {
     cmdStarted = "cmd_started",
     cmdOutput = "cmd_output",

@@ -3,10 +3,10 @@ import formatDuration = require('format-duration');
 import * as types from './types';
 
 /** Render a job log to a nice string */
-export function renderJobLog(jobLog: types.JobLog): string {
+export function renderJobLog(jobDescription: types.JobDescription, jobLog: types.JobLog): string {
     const outputFormat = eventsToOutputFormat(jobLog.events);
 
-    return renderOutputFormat(outputFormat);
+    return `${renderJobDescription(jobDescription)}\n\n${renderOutputFormat(outputFormat)}`;
 }
 
 function eventsToOutputFormat(events: types.JobLogEvent[]): OutputFormat {
@@ -178,3 +178,22 @@ type CommandFormat = {
     ongoing: boolean,
     output?: string,
 };
+
+function renderJobDescription(jobDescription: types.JobDescription): string {
+    const startTime = parseInt(jobDescription.metadata.start_time, 10);
+    let rendered = [
+        `# ${jobDescription.metadata.name}`,
+        "",
+        `Job id: ${jobDescription.metadata.id}`,
+        `Started: ${types.formatTime(startTime)}`,
+    ];
+
+    if (jobDescription.status.state === types.JobStatus.finished){
+        const finishTime = parseInt(jobDescription.metadata.finish_time || "0", 10);
+        rendered.push(`Finished: ${types.formatTime(finishTime)}`);
+    } else {
+        rendered.push("Still ongoing");
+    }
+
+    return rendered.join("\n");
+}

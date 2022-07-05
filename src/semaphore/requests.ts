@@ -54,6 +54,14 @@ export async function getJobLogs(organisation: string, jobId: string): Promise<t
     return response.data;
 }
 
+export async function getJobDescription(organisation: string, jobId: string): Promise<types.JobDescription> {
+    const base = baseUrl(organisation, ResourceName.jobs);
+    const url = `${base}/${jobId}`;
+
+    const response = await semaphoreGet<types.JobDescription>(url);
+    return response.data;
+}
+
 export async function stopJob(organisation: string, jobId: string): Promise<void> {
     const base = baseUrl(organisation, ResourceName.jobs);
     const url = `${base}/${jobId}/stop`;
