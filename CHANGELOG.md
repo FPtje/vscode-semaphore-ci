@@ -5,6 +5,12 @@ All notable changes to the "semaphoreci" extension will be documented in this fi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.2] - 22-07-05
+
+### Added
+
+- Added more info on the job logs page: job id, started, finished, duration.
+
 ## [0.2.1] - 22-07-04
 
 ### Fixed
