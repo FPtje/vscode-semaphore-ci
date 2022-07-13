@@ -1,3 +1,4 @@
+import * as requests from './requests';
 import * as vscode from 'vscode';
 
 import * as treeView from './treeView';
@@ -73,4 +74,22 @@ export class SemaphoreBranchProvider extends treeView.SemaphoreTreeProvider impl
 
         return [];
 	}
+
+    async getPipelines(element: treeView.WorkspaceDirectoryTreeItem): Promise<treeView.SemaphoreTreeItem[]> {
+        const project = await this.getProjectOfWorkspaceFolder(element);
+
+        if (!project) {
+            return [new treeView.NoSuitableProjectTreeItem()];
+        }
+        const organisation = project.spec.repository.owner;
+        const projectId = project.metadata.id;
+
+        const branch = element.branch;
+
+        if (branch.detached) { return []; }
+
+        const pipelines = await requests.getPipelines(organisation, projectId, branch.current);
+
+        return pipelines.map((pipeline) => new treeView.PipelineTreeItem(project, pipeline));
+    }
 }

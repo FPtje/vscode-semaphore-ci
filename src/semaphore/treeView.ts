@@ -102,24 +102,6 @@ export class SemaphoreTreeProvider {
         return res;
     }
 
-    async getPipelines(element: WorkspaceDirectoryTreeItem): Promise<SemaphoreTreeItem[]> {
-        const project = await this.getProjectOfWorkspaceFolder(element);
-
-        if (!project) {
-            return [new NoSuitableProjectTreeItem()];
-        }
-        const organisation = project.spec.repository.owner;
-        const projectId = project.metadata.id;
-
-        const branch = element.branch;
-
-        if (branch.detached) { return []; }
-
-        const pipelines = await requests.getPipelines(organisation, projectId, branch.current);
-
-        return pipelines.map((pipeline) => new PipelineTreeItem(project, pipeline));
-    }
-
     async getPipelineDetails(element: PipelineTreeItem): Promise<SemaphoreTreeItem[]> {
         const organisation = element.project.spec.repository.owner;
 

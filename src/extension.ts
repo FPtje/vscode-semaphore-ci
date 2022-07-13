@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 
 import * as apiKey from './semaphore/apiKey';
 import * as branchTreeView from './semaphore/branchTreeView';
+import * as tagsTreeView from './semaphore/tagsTreeView';
 import * as jobLogRender from './semaphore/jobLogRender';
 import * as requests from './semaphore/requests';
 import * as treeView from './semaphore/treeView';
@@ -9,11 +10,19 @@ import * as types from './semaphore/types';
 
 // this method is called when the extension is activated, i.e. when the view is opened
 export function activate(context: vscode.ExtensionContext) {
-	let treeProvider: branchTreeView.SemaphoreBranchProvider | undefined;
+	let branchTreeProvider: branchTreeView.SemaphoreBranchProvider | undefined;
+	let tagsTreeProvider: tagsTreeView.SemaphoreTagsProvider | undefined;
 
 	createTreeDataProvider().then(provider => {
-		treeProvider = provider;
+		branchTreeProvider = provider;
 
+		if (provider) {
+			refreshTreeLoop(provider);
+		}
+	});
+
+	createTagsTreeDataProvider().then(provider => {
+		tagsTreeProvider = provider;
 		if (provider) {
 			refreshTreeLoop(provider);
 		}
@@ -33,11 +42,24 @@ export function activate(context: vscode.ExtensionContext) {
 	vscode.commands.registerCommand('semaphore-ci.stopJob', stopJob);
 
 	vscode.commands.registerCommand('semaphore-ci.refreshTree', () => {
-		if (!treeProvider) {
-			return;
+		if (branchTreeProvider) {
+			branchTreeProvider.refreshNow();
 		}
 
-		treeProvider.refreshNow();
+		if (tagsTreeProvider) {
+			tagsTreeProvider.refreshNow();
+		}
+	});
+
+	vscode.commands.registerCommand('semaphore-ci.refreshBranchTree', () => {
+		if (branchTreeProvider) {
+			branchTreeProvider.refreshNow();
+		}
+	});
+	vscode.commands.registerCommand('semaphore-ci.refreshTagsTree', () => {
+		if (tagsTreeProvider) {
+			tagsTreeProvider.refreshNow();
+		}
 	});
 
 	let disposable = vscode.commands.registerCommand('semaphore-ci.setApiKey', async () => {
@@ -88,7 +110,34 @@ async function createTreeDataProvider(): Promise<branchTreeView.SemaphoreBranchP
 	return treeProvider;
 }
 
-async function refreshTreeLoop(provider: branchTreeView.SemaphoreBranchProvider) {
+async function createTagsTreeDataProvider(): Promise<tagsTreeView.SemaphoreTagsProvider | undefined> {
+	const organisations: string[] = vscode.workspace.getConfiguration("semaphore-ci").organisations;
+	if (organisations.length === 0) {
+		return;
+	}
+
+	// Don't start requesting things if the API key is not set.
+	const apiKeySet = await apiKey.isApiKeySet();
+	if (!apiKeySet) {
+		return;
+	}
+
+	const projects = await requests.getProjects(organisations);
+	const treeProvider = new tagsTreeView.SemaphoreTagsProvider(projects);
+
+	let treeView = vscode.window.createTreeView('semaphore-ci-tags', {
+		treeDataProvider: treeProvider
+	});
+
+	treeProvider.treeview = treeView;
+
+	treeView.onDidExpandElement(event => treeProvider.onExpandElement(event));
+	treeView.onDidCollapseElement(event => treeProvider.onCollapseElement(event));
+
+	return treeProvider;
+}
+
+async function refreshTreeLoop(provider: treeView.SemaphoreTreeProvider) {
 	while (true) {
 		let delay: number = vscode?.workspace?.getConfiguration("semaphore-ci")?.autorefreshDelay;
 

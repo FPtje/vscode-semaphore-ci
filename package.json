@@ -51,7 +51,15 @@
 				}
 			},
 			{
-				"command": "semaphore-ci.refreshTree",
+				"command": "semaphore-ci.refreshBranchTree",
+				"title": "Refresh",
+				"icon": {
+					"light": "resources/light/refresh.svg",
+					"dark": "resources/dark/refresh.svg"
+				}
+			},
+			{
+				"command": "semaphore-ci.refreshTagsTree",
 				"title": "Refresh",
 				"icon": {
 					"light": "resources/light/refresh.svg",
@@ -92,7 +100,11 @@
 			"semaphore-ci": [
 				{
 					"id": "semaphore-ci-current-branch",
-					"name": "Semaphore CI"
+					"name": "Current branch"
+				},
+				{
+					"id": "semaphore-ci-tags",
+					"name": "Tags"
 				}
 			]
 		},
@@ -126,8 +138,13 @@
 		"menus": {
 			"view/title": [
 				{
-					"command": "semaphore-ci.refreshTree",
+					"command": "semaphore-ci.refreshBranchTree",
 					"when": "view == semaphore-ci-current-branch",
+					"group": "navigation"
+				},
+				{
+					"command": "semaphore-ci.refreshTagsTree",
+					"when": "view == semaphore-ci-tags",
 					"group": "navigation"
 				}
 			],
@@ -150,6 +167,26 @@
 				{
 					"command": "semaphore-ci.rerunWorkflow",
 					"when": "view == semaphore-ci-current-branch && viewItem == semaphorePipeline",
+					"group": "inline"
+				},
+				{
+					"command": "semaphore-ci.stopJob",
+					"when": "view == semaphore-ci-tags && viewItem == semaphoreJobRunning",
+					"group": "inline"
+				},
+				{
+					"command": "semaphore-ci.openLogs",
+					"when": "view == semaphore-ci-tags && viewItem == semaphoreJob",
+					"group": "inline"
+				},
+				{
+					"command": "semaphore-ci.openLogs",
+					"when": "view == semaphore-ci-tags && viewItem == semaphoreJobRunning",
+					"group": "inline"
+				},
+				{
+					"command": "semaphore-ci.rerunWorkflow",
+					"when": "view == semaphore-ci-tags && viewItem == semaphorePipeline",
 					"group": "inline"
 				}
 			]
