@@ -81,6 +81,22 @@ export async function rerunWorkflow(organisation: string, workflowId: string): P
     await semaphorePost(url, {request_token: requestToken});
 }
 
+/** Getting tags is a little tricky. We need to get an HTML subpage and filter out the tags from
+ * there. */
+ export async function getTags(organisation: string, projectId: string): Promise<types.TagReference[]> {
+    const url = `https://${organisation}.semaphoreci.com/projects/${projectId}/workflows?type=tag`;
+    const response = await semaphoreGet<string>(url);
+    const regex = /href="\/branches\/([a-z0-9-]+)"\s*>([^<\s]+)\s*<\/a>/igm;
+    const tags = [...response.data.matchAll(regex)];
+    let result: types.TagReference[] = [];
+
+    tags.forEach(tag => {
+        result.push(new types.TagReference(tag[2], tag[1]));
+    });
+
+    return result;
+}
+
 /** Kinds of resources that can be accessed through the semaphore API */
 enum ResourceName {
     projects = "projects",

@@ -184,6 +184,12 @@ export enum JobLogEventType {
     jobFinished = "job_finished",
 }
 
+export class TagReference {
+    constructor(
+    public readonly tagName: string,
+    public readonly branchId: string) {}
+};
+
 export function formatTime(seconds: number): string {
     const timestamp = new Date(seconds * 1000);
 
