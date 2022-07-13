@@ -2,9 +2,10 @@ import * as vscode from 'vscode';
 
 import * as apiKey from './semaphore/apiKey';
 import * as branchTreeView from './semaphore/branchTreeView';
-import * as types from './semaphore/types';
-import * as requests from './semaphore/requests';
 import * as jobLogRender from './semaphore/jobLogRender';
+import * as requests from './semaphore/requests';
+import * as treeView from './semaphore/treeView';
+import * as types from './semaphore/types';
 
 // this method is called when the extension is activated, i.e. when the view is opened
 export function activate(context: vscode.ExtensionContext) {
@@ -108,7 +109,7 @@ async function refreshTreeLoop(provider: branchTreeView.SemaphoreBranchProvider)
 	}
 }
 
-async function openJobLogs(jobElement: branchTreeView.JobTreeItem) {
+async function openJobLogs(jobElement: treeView.JobTreeItem) {
 	if (!jobElement) {
 		console.warn("open job logs button pressed, but the element passed is undefined. This is a VS Code bug. Ignoring button press.");
 		return;
@@ -131,7 +132,7 @@ async function openJobLogs(jobElement: branchTreeView.JobTreeItem) {
 	await vscode.window.showTextDocument(doc, { preview: true  });
 }
 
-async function stopJob(jobElement: branchTreeView.JobTreeItem) {
+async function stopJob(jobElement: treeView.JobTreeItem) {
 	if (!jobElement) {
 		console.warn("Stop job button pressed, but the element passed is undefined. This is a VS Code bug. Ignoring button press.");
 		return;
@@ -146,7 +147,7 @@ async function stopJob(jobElement: branchTreeView.JobTreeItem) {
 	}
 }
 
-async function rerunWorkflow(pipelineElement: branchTreeView.PipelineTreeItem) {
+async function rerunWorkflow(pipelineElement: treeView.PipelineTreeItem) {
 	if (!pipelineElement) {
 		console.warn("Rerun pipeline button pressed, but the element passed is undefined. This is a VS Code bug. Ignoring button press.");
 		return;
