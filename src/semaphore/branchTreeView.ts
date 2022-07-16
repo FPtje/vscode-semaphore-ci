@@ -69,6 +69,14 @@ export class SemaphoreBranchProvider extends treeView.SemaphoreTreeProvider impl
         }
 
         if (element instanceof treeView.PipelineTreeItem) {
+            // This case occurs when opening a pipeline to see its details. buildTree will not have
+            // downloaded that part of the tree yet.
+            if (element.children.length === 0) {
+                return this.getPipelineDetails(element).then(children => {
+                    element.children = children;
+                    return children;
+                });
+            }
             return element.children;
         }
 
