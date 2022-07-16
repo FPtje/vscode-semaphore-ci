@@ -45,6 +45,13 @@ export class SemaphoreTagsProvider extends treeView.SemaphoreTreeProvider implem
                         }
                         let pipelinePromises: Promise<any>[] = [];
                         for (const pipelineItem of pipelineItems) {
+                            const pipelineId = pipelineItem.pipeline.ppl_id;
+                            // Optimization: Do not load pipeline details if the item is not
+                            // expanded in the tree view.
+                            if (!this.expandedPipelines.has(pipelineId)) {
+                                continue;
+                            };
+
                             pipelinePromises.push(this.getPipelineDetails(pipelineItem).then(children => {
                                 pipelineItem.children = children;
                             }));
