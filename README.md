@@ -14,11 +14,15 @@ Open the logs of a (failed) job and see where it goes wrong!
 
 ![Open job logs](./images/semaphore-ci-open-logs.png)
 
+See and manage tag builds!
+
+![See tag builds](./images/semaphore-ci-tags.png)
+
 Other notable features:
 
-- Automatic refreshing of the main view
+- Automatic refreshing
 - Stop a running job
-- Re-run workflows with a single button
+- Re-run Semaphore pipelines
 
 ## Extension Settings
 
