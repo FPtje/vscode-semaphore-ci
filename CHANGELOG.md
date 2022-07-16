@@ -5,6 +5,16 @@ All notable changes to the "semaphoreci" extension will be documented in this fi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 22-07-16
+
+### Added
+
+- Added an overview for tag builds
+
+### Fixed
+
+- Fixed the opening of a pipeline waiting for the next refresh
+
 ## [0.2.2] - 22-07-05
 
 ### Added
