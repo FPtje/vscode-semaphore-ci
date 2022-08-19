@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added an overview for tag builds
 
+## [0.4.0] - 22-08-19
+
+### Added
+
+- Added a button to temporarily pick a different branch than the checked out branch.
+
 ### Fixed
 
 - Fixed the opening of a pipeline waiting for the next refresh
