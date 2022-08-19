@@ -92,11 +92,7 @@ export class SemaphoreBranchProvider extends treeView.SemaphoreTreeProvider impl
         const organisation = project.spec.repository.owner;
         const projectId = project.metadata.id;
 
-        const branch = element.branch;
-
-        if (branch.detached) { return []; }
-
-        const pipelines = await requests.getPipelines(organisation, projectId, branch.current);
+        const pipelines = await requests.getPipelines(organisation, projectId, element.branch);
 
         return pipelines.map((pipeline) => new treeView.PipelineTreeItem(project, pipeline));
     }

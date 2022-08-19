@@ -1,3 +1,4 @@
+import * as simpleGit from 'simple-git';
 import * as vscode from 'vscode';
 
 import * as apiKey from './semaphore/apiKey';
@@ -37,6 +38,7 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.commands.executeCommand('setContext', 'semaphore-ci.initialized', true)
 	);
 
+	vscode.commands.registerCommand('semaphore-ci.pickBranch', pickBranch);
 	vscode.commands.registerCommand('semaphore-ci.openLogs', openJobLogs);
 	vscode.commands.registerCommand('semaphore-ci.rerunWorkflow', rerunWorkflow);
 	vscode.commands.registerCommand('semaphore-ci.stopJob', stopJob);
@@ -156,6 +158,40 @@ async function refreshTreeLoop(provider: treeView.SemaphoreTreeProvider) {
 		// effectively causing it never to refresh at all.
 		provider.refreshIfIdle();
 	}
+}
+
+async function pickBranch(workspaceElement: treeView.WorkspaceDirectoryTreeItem) {
+	const gitRepo = workspaceElement.gitRepo;
+
+	let chosenBranch = await vscode.window.showQuickPick(getAvailableBranches(gitRepo), { canPickMany: false });
+
+	// User canceled out of the dialog
+	if (chosenBranch === undefined) { return; }
+
+	let selection = chosenBranch === "Current branch" ? null : chosenBranch;
+	const provider = workspaceElement.provider;
+
+	provider.selectedBranch = selection;
+	vscode.commands.executeCommand("semaphore-ci.refreshTree");
+}
+
+/**
+ * Gets the available branches, both local and remote.
+ * @returns List of available branches, plus a special value "Current branch".
+ */
+async function getAvailableBranches(gitRepo: simpleGit.SimpleGit): Promise<string[]> {
+	let branches = await gitRepo.branch(["--all"]);
+	console.log(branches);
+	let allBranches = branches.all;
+
+	// Remove the `remote/origin/` prefix from remote branches
+	const rewriteRegex = /^remotes\/[^/]+\//;
+	for (let i = 0; i < allBranches.length; i++) {
+		allBranches[i] = allBranches[i].replace(rewriteRegex, "");
+	}
+
+	const uniqueBranches: Set<string> = new Set(allBranches);
+	return ["Current branch", ...Array.from(uniqueBranches)];
 }
 
 async function openJobLogs(jobElement: treeView.JobTreeItem) {

@@ -9,6 +9,9 @@ import * as types from './types';
 export class SemaphoreTreeProvider {
     constructor(public readonly projects: types.Project[]) { };
 
+	// The branch selected for getting the branch tree view. When `null`, the current checked out
+	// branch is chosen.
+	public selectedBranch: string | null = null;
     /** Holds the tree of items. This variable is populated by `this.buildBranchTree()` */
     protected tree: WorkspaceDirectoryTreeItem[] | null = null;
     public treeview: vscode.TreeView<SemaphoreTreeItem> | null = null;
@@ -96,7 +99,10 @@ export class SemaphoreTreeProvider {
         for (const workspaceFolder of workspaceFolders) {
             const gitRepo = simpleGit.default(workspaceFolder.uri.fsPath);
             const branch = await gitRepo.branchLocal();
-            res.push(new WorkspaceDirectoryTreeItem(workspaceFolder, gitRepo, branch));
+			const branchname =
+				this.selectedBranch !== null ? this.selectedBranch :
+				branch.detached ? "" : branch.current;
+            res.push(new WorkspaceDirectoryTreeItem(workspaceFolder, gitRepo, branchname, this));
         }
 
         return res;
@@ -163,12 +169,12 @@ export class WorkspaceDirectoryTreeItem extends SemaphoreTreeItem {
 	constructor(
 		public readonly workspaceFolder: vscode.WorkspaceFolder,
 		public readonly gitRepo: simpleGit.SimpleGit,
-		public readonly branch: simpleGit.BranchSummary) {
+		public readonly branch: string,
+		public readonly provider: SemaphoreTreeProvider) {
 		super(workspaceFolder.name, vscode.TreeItemCollapsibleState.Expanded);
 
-		if (!branch.detached) {
-			this.description = branch.current;
-		}
+		this.description = branch;
+		this.contextValue = "semaphoreWorkspaceDirectory";
 	}
 }
 

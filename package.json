@@ -43,6 +43,14 @@
 				}
 			},
 			{
+				"command": "semaphore-ci.pickBranch",
+				"title": "Switch branch",
+				"icon": {
+					"light": "resources/light/branch.svg",
+					"dark": "resources/dark/branch.svg"
+				}
+			},
+			{
 				"command": "semaphore-ci.rerunWorkflow",
 				"title": "Rerun",
 				"icon": {
@@ -149,6 +157,11 @@
 				}
 			],
 			"view/item/context": [
+				{
+					"command": "semaphore-ci.pickBranch",
+					"when": "view == semaphore-ci-current-branch && viewItem == semaphoreWorkspaceDirectory",
+					"group": "inline"
+				},
 				{
 					"command": "semaphore-ci.stopJob",
 					"when": "view == semaphore-ci-current-branch && viewItem == semaphoreJobRunning",

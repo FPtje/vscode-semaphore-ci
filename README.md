@@ -37,6 +37,7 @@ There is also a setting to set the API key, but that will be stored in a file in
 
 - Semaphore logo taken from [gilbarbara/logos](https://github.com/gilbarbara/logos) ([LICENSE](https://github.com/gilbarbara/logos/blob/40f3135/LICENSE.txt)).
 - Some other logos taken and modified from the [vscode/python](https://github.com/microsoft/vscode-python) extension ([LICENSE](https://github.com/microsoft/vscode-python/blob/1187381/LICENSE)).
+- Branch logo taken and modified from the [gitkraken/vscode-gitlens](https://github.com/gitkraken/vscode-gitlens/tree/main/images/dark) extension ([LICENSE](https://github.com/gitkraken/vscode-gitlens/blob/main/LICENSE)).
 
 ## Release Notes
 
