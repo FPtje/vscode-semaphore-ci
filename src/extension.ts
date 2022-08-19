@@ -171,7 +171,7 @@ async function pickBranch(workspaceElement: treeView.WorkspaceDirectoryTreeItem)
 	let selection = chosenBranch === "Current branch" ? null : chosenBranch;
 	const provider = workspaceElement.provider;
 
-	provider.selectedBranch = selection;
+	provider.selectedBranch[workspaceElement.workspaceFolder.name] = selection;
 	vscode.commands.executeCommand("semaphore-ci.refreshTree");
 }
 

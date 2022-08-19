@@ -11,7 +11,7 @@ export class SemaphoreTreeProvider {
 
 	// The branch selected for getting the branch tree view. When `null`, the current checked out
 	// branch is chosen.
-	public selectedBranch: string | null = null;
+	public selectedBranch: { [workspaceName: string]: string | null } = {};
     /** Holds the tree of items. This variable is populated by `this.buildBranchTree()` */
     protected tree: WorkspaceDirectoryTreeItem[] | null = null;
     public treeview: vscode.TreeView<SemaphoreTreeItem> | null = null;
@@ -99,8 +99,9 @@ export class SemaphoreTreeProvider {
         for (const workspaceFolder of workspaceFolders) {
             const gitRepo = simpleGit.default(workspaceFolder.uri.fsPath);
             const branch = await gitRepo.branchLocal();
+			const selectedBranch: string | null | undefined = this.selectedBranch[workspaceFolder.name];
 			const branchname =
-				this.selectedBranch !== null ? this.selectedBranch :
+				selectedBranch ? selectedBranch :
 				branch.detached ? "" : branch.current;
             res.push(new WorkspaceDirectoryTreeItem(workspaceFolder, gitRepo, branchname, this));
         }
