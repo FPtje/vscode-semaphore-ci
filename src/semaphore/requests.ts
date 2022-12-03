@@ -1,5 +1,5 @@
 import axios, { AxiosError, AxiosResponse } from 'axios';
-import {v4 as uuidv4} from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 
 import * as types from './types';
 import * as apiKey from './apiKey';
@@ -78,12 +78,12 @@ export async function rerunWorkflow(organisation: string, workflowId: string): P
     const requestToken = uuidv4();
     const url = `${base}/${workflowId}/reschedule`;
     // eslint-disable-next-line @typescript-eslint/naming-convention
-    await semaphorePost(url, {request_token: requestToken});
+    await semaphorePost(url, { request_token: requestToken });
 }
 
 /** Getting tags is a little tricky. We need to get an HTML subpage and filter out the tags from
  * there. */
- export async function getTags(organisation: string, projectId: string): Promise<types.TagReference[]> {
+export async function getTags(organisation: string, projectId: string): Promise<types.TagReference[]> {
     const url = `https://${organisation}.semaphoreci.com/projects/${projectId}/workflows?type=tag`;
     const response = await semaphoreGet<string>(url);
     const regex = /href="\/branches\/([a-z0-9-]+)"\s*>([^<\s]+)\s*<\/a>/igm;
@@ -126,16 +126,16 @@ async function semaphorePost<T = any>(url: string, params: object = {}):
 
     return retryRequest(() => axios.post<T>(
         url, null, {
-            headers: {
-                authorization: `Token ${key}`,
-                // eslint-disable-next-line @typescript-eslint/naming-convention
-                "Content-Type": "application/json",
+        headers: {
+            authorization: `Token ${key}`,
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            "Content-Type": "application/json",
 
-                // eslint-disable-next-line @typescript-eslint/naming-convention
-                "User-Agent": "SemaphoreCI v2.0 Client",
-            },
-            params: params
-        })
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            "User-Agent": "SemaphoreCI v2.0 Client",
+        },
+        params: params
+    })
     );
 };
 

@@ -163,7 +163,7 @@ export type JobDescriptionMetadata = {
 export type JobDescriptionSpec = {
     project_id: string,
     agent: any,
-    env_vars: [{name: string, value: string}],
+    env_vars: [{ name: string, value: string }],
     commands: string[],
 };
 
@@ -172,7 +172,7 @@ export type JobDescriptionStatus = {
     state: JobStatus,
     agent: {
         ip: string,
-        ports: [{name: string, number: number}],
+        ports: [{ name: string, number: number }],
     },
 };
 
@@ -186,8 +186,8 @@ export enum JobLogEventType {
 
 export class TagReference {
     constructor(
-    public readonly tagName: string,
-    public readonly branchId: string) {}
+        public readonly tagName: string,
+        public readonly branchId: string) { }
 };
 
 export function formatTime(seconds: number): string {

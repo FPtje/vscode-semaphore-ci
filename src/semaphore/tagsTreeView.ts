@@ -13,11 +13,11 @@ export class SemaphoreTagsProvider extends treeView.SemaphoreTreeProvider implem
         this.isRefreshing = true;
         const workspaceFolders = await this.getWorkspaceFolders();
 
-		// Workaround: Through treeview's onDidExpandElement and onDidCollapseElement events, we
-		// keep track of which pipelines to get the details of. However, due to some race condition
-		// with refreshing, those events do not always fire. This can lead to elements being
-		// expanded without us knowing about it. With this we assume that a selected item is being
-		// expanded. Details are always requested of selected pipelines.
+        // Workaround: Through treeview's onDidExpandElement and onDidCollapseElement events, we
+        // keep track of which pipelines to get the details of. However, due to some race condition
+        // with refreshing, those events do not always fire. This can lead to elements being
+        // expanded without us knowing about it. With this we assume that a selected item is being
+        // expanded. Details are always requested of selected pipelines.
         if (this.treeview) {
             for (const selected of this.treeview.selection) {
                 if (selected instanceof treeView.PipelineTreeItem) {
@@ -67,7 +67,7 @@ export class SemaphoreTagsProvider extends treeView.SemaphoreTreeProvider implem
         this.isRefreshing = false;
     }
 
-	getChildren(element?: treeView.SemaphoreTreeItem): vscode.ProviderResult<treeView.SemaphoreTreeItem[]> {
+    getChildren(element?: treeView.SemaphoreTreeItem): vscode.ProviderResult<treeView.SemaphoreTreeItem[]> {
         if (!element && !this.tree) {
             // First population of the branch tree
             return this.buildTree().then(() => this.getChildren(element));
@@ -98,7 +98,7 @@ export class SemaphoreTagsProvider extends treeView.SemaphoreTreeProvider implem
         }
 
         return [];
-	}
+    }
 
     async getTags(element: treeView.WorkspaceDirectoryTreeItem): Promise<treeView.SemaphoreTreeItem[]> {
         const project = await this.getProjectOfWorkspaceFolder(element);
@@ -136,8 +136,8 @@ export class TagTreeItem extends treeView.SemaphoreTreeItem {
 
     constructor(
         public readonly project: types.Project,
-		public readonly tagReference: types.TagReference
-	) {
-		super(tagReference.tagName, vscode.TreeItemCollapsibleState.Collapsed);
-	}
+        public readonly tagReference: types.TagReference
+    ) {
+        super(tagReference.tagName, vscode.TreeItemCollapsibleState.Collapsed);
+    }
 }

@@ -12,11 +12,11 @@ export class SemaphoreBranchProvider extends treeView.SemaphoreTreeProvider impl
         this.isRefreshing = true;
         const workspaceFolders = await this.getWorkspaceFolders();
 
-		// Workaround: Through treeview's onDidExpandElement and onDidCollapseElement events, we
-		// keep track of which pipelines to get the details of. However, due to some race condition
-		// with refreshing, those events do not always fire. This can lead to elements being
-		// expanded without us knowing about it. With this we assume that a selected item is being
-		// expanded. Details are always requested of selected pipelines.
+        // Workaround: Through treeview's onDidExpandElement and onDidCollapseElement events, we
+        // keep track of which pipelines to get the details of. However, due to some race condition
+        // with refreshing, those events do not always fire. This can lead to elements being
+        // expanded without us knowing about it. With this we assume that a selected item is being
+        // expanded. Details are always requested of selected pipelines.
         if (this.treeview) {
             for (const selected of this.treeview.selection) {
                 if (selected instanceof treeView.PipelineTreeItem) {
@@ -35,7 +35,7 @@ export class SemaphoreBranchProvider extends treeView.SemaphoreTreeProvider impl
                 }
 
                 if (pipelineTreeItem instanceof treeView.PipelineTreeItem) {
-					const pipelineId = pipelineTreeItem.pipeline.ppl_id;
+                    const pipelineId = pipelineTreeItem.pipeline.ppl_id;
                     // Optimization: Do not load pipeline details if the item is not expanded in the
                     // tree view.
                     if (!this.expandedPipelines.has(pipelineId)) {
@@ -54,7 +54,7 @@ export class SemaphoreBranchProvider extends treeView.SemaphoreTreeProvider impl
         this.isRefreshing = false;
     }
 
-	getChildren(element?: treeView.SemaphoreTreeItem): vscode.ProviderResult<treeView.SemaphoreTreeItem[]> {
+    getChildren(element?: treeView.SemaphoreTreeItem): vscode.ProviderResult<treeView.SemaphoreTreeItem[]> {
         if (!element && !this.tree) {
             // First population of the branch tree
             return this.buildTree().then(() => this.getChildren(element));
@@ -81,7 +81,7 @@ export class SemaphoreBranchProvider extends treeView.SemaphoreTreeProvider impl
         }
 
         return [];
-	}
+    }
 
     async getPipelines(element: treeView.WorkspaceDirectoryTreeItem): Promise<treeView.SemaphoreTreeItem[]> {
         const project = await this.getProjectOfWorkspaceFolder(element);

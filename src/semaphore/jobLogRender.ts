@@ -123,8 +123,8 @@ function stripRewrittenLines(output: string): string {
         if (lastIndex === line.length - 1) {
             split[index] = line.substring(0, line.length - 1); // remove last character
             index = index - 1;
-        // Carriage return is found anywhere else: remove everything up to and including that
-        // carriage return.
+            // Carriage return is found anywhere else: remove everything up to and including that
+            // carriage return.
         } else {
             split[index] = line.substring(lastIndex + 1);
         }
@@ -188,7 +188,7 @@ function renderJobDescription(jobDescription: types.JobDescription): string {
         `Started: ${types.formatTime(startTime)}`,
     ];
 
-    if (jobDescription.status.state === types.JobStatus.finished){
+    if (jobDescription.status.state === types.JobStatus.finished) {
         const finishTime = parseInt(jobDescription.metadata.finish_time || "0", 10);
         rendered.push(`Finished: ${types.formatTime(finishTime)}`);
         rendered.push(`Job duration: ${formatDuration(1000 * (finishTime - startTime))}`);
