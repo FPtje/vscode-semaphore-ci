@@ -197,7 +197,9 @@ export class PipelineTreeItem extends SemaphoreTreeItem {
 
 		super(formatted, vscode.TreeItemCollapsibleState.Collapsed);
 
-		this.description = pipeline.commit_message;
+		const commitMsgBeforeNewline = pipeline.commit_message.match('[^\n]*');
+		this.description =
+			commitMsgBeforeNewline !== null ? commitMsgBeforeNewline[0] : pipeline.commit_message;
 		this.iconPath = stateAndResultToIcon(pipeline.state, pipeline.result);
 		this.contextValue = "semaphorePipeline";
 	}
@@ -404,7 +406,7 @@ function stateAndResultToIcon(
 
 /** Helper function to define an icon path */
 function resource(iconName: string): { light: string; dark: string; } {
-    return {
+	return {
 		light: path.join(__filename, '..', '..', '..', 'resources', 'light', iconName),
 		dark: path.join(__filename, '..', '..', '..', 'resources', 'dark', iconName)
 	};
