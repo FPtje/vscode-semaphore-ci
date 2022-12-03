@@ -5,6 +5,12 @@ All notable changes to the "semaphoreci" extension will be documented in this fi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.1] - 22-12-03
+
+### Fixed
+
+- Fixed branch view showing clipped/empty messages when a commit is more than one line.
+
 ## [0.4.0] - 22-08-19
 
 ### Added
