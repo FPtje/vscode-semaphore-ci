@@ -250,6 +250,10 @@ function jobToIcon(job: types.Job): { light: string; dark: string; } {
             iconName = "queued.svg";
             break;
         }
+        case types.JobStatus.enqueued: {
+            iconName = "queued.svg";
+            break;
+        }
         case types.JobStatus.running: {
             iconName = "running.svg";
             break;

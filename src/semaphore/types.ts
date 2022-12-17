@@ -110,6 +110,7 @@ export type Job = {
 export enum JobStatus {
     pending = "PENDING",
     queued = "QUEUED",
+    enqueued = "ENQUEUED", // Apparently this also exists
     running = "RUNNING",
     finished = "FINISHED",
 }
