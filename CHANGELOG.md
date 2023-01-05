@@ -5,6 +5,22 @@ All notable changes to the "semaphoreci" extension will be documented in this fi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] -- 23-01-05
+
+### Added
+
+- Show the top 10 slowest commands at the top of the job log
+- Show the job URL at the top of the job log
+
+### Changed
+
+- No longer show the "Log:" text above every command output in the job log.
+- Show skipped blocks with a new gray `>>` icon instead of a "success" icon.
+
+### Fixed
+
+- Show a better error when failing to fetch job logs
+
 ## [0.4.2] - 22-12-17
 
 ### Fixed
