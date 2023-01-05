@@ -213,8 +213,14 @@ async function openJobLogs(jobElement: treeView.JobTreeItem) {
     const uri = vscode.Uri.parse(
         `semaphore-ci-joblog:${organisation}/${jobElement.job.job_id}/${jobElement.job.name}.md${uriParameter}`
     );
-    const doc = await vscode.workspace.openTextDocument(uri);
-    await vscode.window.showTextDocument(doc, { preview: true });
+    try{
+
+        const doc = await vscode.workspace.openTextDocument(uri);
+        await vscode.window.showTextDocument(doc, { preview: true });
+    } catch (e: any) {
+        vscode.window.showErrorMessage(`Failed to get job log for ${jobElement.job.name}. See the console for a detailed error message.`);
+        console.error(e);
+    }
 }
 
 async function stopJob(jobElement: treeView.JobTreeItem) {
@@ -264,6 +270,8 @@ class JobLogProvider implements vscode.TextDocumentContentProvider {
             }
 
             return jobLogRender.renderJobLog(description, logs);
+        }).catch(err => {
+            return `Unable to get job logs for job id ${jobId}. The following error was thrown: ${err}`;
         });
     }
 }
