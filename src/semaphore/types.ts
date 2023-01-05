@@ -82,6 +82,7 @@ export type Block = {
     name: string,
     state: BlockState,
     result: BlockResult,
+    result_reason: string, // The possible values of this are not documented
     jobs: Job[],
 };
 

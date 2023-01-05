@@ -311,7 +311,11 @@ function blockToIcon(
 
             switch (block.result) {
                 case types.BlockResult.passed: {
-                    iconName = "status-ok.svg";
+                    if (block.result_reason === 'skipped') {
+                        iconName = 'status-skipped.svg';
+                    } else {
+                        iconName = "status-ok.svg";
+                    }
                     break;
                 }
                 case types.BlockResult.stopped: {
