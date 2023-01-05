@@ -157,7 +157,6 @@ function renderCommandFormat(commandFormat: CommandFormat): string {
     if ('output' in commandFormat && commandFormat.output !== undefined && commandFormat.output !== "") {
         rendered = rendered.concat([
             "",
-            "Log: ",
             "```",
             commandFormat.output,
             "```",
