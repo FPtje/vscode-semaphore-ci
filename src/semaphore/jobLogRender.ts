@@ -5,8 +5,10 @@ import * as types from './types';
 /** Render a job log to a nice string */
 export function renderJobLog(jobDescription: types.JobDescription, jobLog: types.JobLog): string {
     const outputFormat = eventsToOutputFormat(jobLog.events);
+    const sortedByDuration = [...outputFormat].sort((l, r) => r.duration - l.duration);
+    const topTenDuration = sortedByDuration.slice(0, 10);
 
-    return `${renderJobDescription(jobDescription)}\n\n${renderOutputFormat(outputFormat)}`;
+    return `${renderJobDescription(jobDescription)}\n\n${renderTopDurations(topTenDuration)}\n\n${renderOutputFormat(outputFormat)}`;
 }
 
 function eventsToOutputFormat(events: types.JobLogEvent[]): OutputFormat {
@@ -193,6 +195,23 @@ function renderJobDescription(jobDescription: types.JobDescription): string {
         rendered.push(`Job duration: ${formatDuration(1000 * (finishTime - startTime))}`);
     } else {
         rendered.push("Still ongoing");
+    }
+
+    return rendered.join("\n");
+}
+
+/** Render the top n command durations. Used to see which commands took the most time. */
+function renderTopDurations(commands: CommandFormat[]): string {
+    let rendered: string[] = [
+        "## Commands that took the longest",
+        ""
+    ];
+
+    for (const command of commands) {
+        const duration = formatDuration(1000 * command.duration);
+        // Remove everything after newlines, as the specific command can be looked up below.
+        const commandStr = command.command.trimEnd().replace(/\n.*/, "");
+        rendered.push(`- ${duration} - \`${commandStr}\``);
     }
 
     return rendered.join("\n");
