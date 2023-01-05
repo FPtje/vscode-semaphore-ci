@@ -269,7 +269,7 @@ class JobLogProvider implements vscode.TextDocumentContentProvider {
                 return;
             }
 
-            return jobLogRender.renderJobLog(description, logs);
+            return jobLogRender.renderJobLog(organisation, description, logs);
         }).catch(err => {
             return `Unable to get job logs for job id ${jobId}. The following error was thrown: ${err}`;
         });

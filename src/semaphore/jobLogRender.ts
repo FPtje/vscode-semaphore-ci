@@ -3,12 +3,12 @@ import formatDuration = require('format-duration');
 import * as types from './types';
 
 /** Render a job log to a nice string */
-export function renderJobLog(jobDescription: types.JobDescription, jobLog: types.JobLog): string {
+export function renderJobLog(organisation: string, jobDescription: types.JobDescription, jobLog: types.JobLog): string {
     const outputFormat = eventsToOutputFormat(jobLog.events);
     const sortedByDuration = [...outputFormat].sort((l, r) => r.duration - l.duration);
     const topTenDuration = sortedByDuration.slice(0, 10);
 
-    return `${renderJobDescription(jobDescription)}\n\n${renderTopDurations(topTenDuration)}\n\n${renderOutputFormat(outputFormat)}`;
+    return `${renderJobDescription(organisation, jobDescription)}\n\n${renderTopDurations(topTenDuration)}\n\n${renderOutputFormat(outputFormat)}`;
 }
 
 function eventsToOutputFormat(events: types.JobLogEvent[]): OutputFormat {
@@ -180,12 +180,13 @@ type CommandFormat = {
     output?: string,
 };
 
-function renderJobDescription(jobDescription: types.JobDescription): string {
+function renderJobDescription(organisation: string, jobDescription: types.JobDescription): string {
     const startTime = parseInt(jobDescription.metadata.start_time, 10);
     let rendered = [
         `# ${jobDescription.metadata.name}`,
         "",
         `Job id: ${jobDescription.metadata.id}`,
+        `URL: https://${organisation}.semaphoreci.com/jobs/${jobDescription.metadata.id}`,
         `Started: ${types.formatTime(startTime)}`,
     ];
 
