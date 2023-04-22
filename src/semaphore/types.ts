@@ -8,6 +8,16 @@
 // The naming comes from Semaphore itself. See this page for an overview:
 // https://docs.semaphoreci.com/essentials/concepts/
 
+export type Organisation = string;
+
+/**
+ * Combination of an organisation and the projects it contains.
+ */
+export type OrganisationProject = {
+    organisation: Organisation;
+    project: Project;
+};
+
 export type Project = {
     spec: ProjectSpec;
     metadata: ProjectMetadata;

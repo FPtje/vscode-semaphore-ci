@@ -7,7 +7,7 @@ import * as types from './types';
 
 /** Generic class for providing tree views */
 export class SemaphoreTreeProvider {
-    constructor(public readonly projects: types.Project[]) { };
+    constructor(public readonly projects: Map<types.Organisation, types.Project[]>) { };
 
     // The branch selected for getting the branch tree view. When `null`, the current checked out
     // branch is chosen.
@@ -110,7 +110,7 @@ export class SemaphoreTreeProvider {
     }
 
     async getPipelineDetails(element: PipelineTreeItem): Promise<SemaphoreTreeItem[]> {
-        const organisation = element.project.spec.repository.owner;
+        const organisation = element.project.organisation;
 
         const pipelineDetails =
             await requests.getPipelineDetails(organisation, element.pipeline.ppl_id);
@@ -134,7 +134,7 @@ export class SemaphoreTreeProvider {
      * first project that matches a remote.
     */
     async getProjectOfWorkspaceFolder(element: WorkspaceDirectoryTreeItem):
-        Promise<types.Project | null> {
+        Promise<types.OrganisationProject | null> {
         const isRepo = await element.gitRepo.checkIsRepo();
 
         if (!isRepo) { return Promise.resolve(null); }
@@ -144,12 +144,14 @@ export class SemaphoreTreeProvider {
         for (let remote of remotes) {
             const remoteUrl = remote.refs.fetch.toLowerCase();
 
-            for (let project of this.projects) {
-                const owner = project.spec.repository.owner.toLowerCase();
-                const name = project.spec.repository.name.toLowerCase();
+            for (let [organisation, projects] of this.projects) {
+                for (let project of projects) {
+                    const owner = project.spec.repository.owner.toLowerCase();
+                    const name = project.spec.repository.name.toLowerCase();
 
-                if (remoteUrl.includes(`${owner}/${name}`)) {
-                    return project;
+                    if (remoteUrl.includes(`${owner}/${name}`)) {
+                        return { organisation, project };
+                    }
                 }
             };
         }
@@ -190,7 +192,7 @@ export class PipelineTreeItem extends SemaphoreTreeItem {
     public children: SemaphoreTreeItem[] = [];
 
     constructor(
-        public readonly project: types.Project,
+        public readonly project: types.OrganisationProject,
         public readonly pipeline: types.Pipeline
     ) {
         const formatted = types.formatTime(pipeline.created_at.seconds);

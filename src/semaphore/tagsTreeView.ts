@@ -107,8 +107,8 @@ export class SemaphoreTagsProvider extends treeView.SemaphoreTreeProvider implem
             return [new treeView.NoSuitableProjectTreeItem()];
         }
 
-        const organisation = project.spec.repository.owner;
-        const projectId = project.metadata.id;
+        const organisation = project.organisation;
+        const projectId = project.project.metadata.id;
 
         const tagReferences = await requests.getTags(organisation, projectId);
         let tagTreeItems: TagTreeItem[] = [];
@@ -121,8 +121,8 @@ export class SemaphoreTagsProvider extends treeView.SemaphoreTreeProvider implem
 
     async getPipelines(element: TagTreeItem): Promise<treeView.PipelineTreeItem[]> {
         const project = element.project;
-        const organisation = project.spec.repository.owner;
-        const projectId = project.metadata.id;
+        const organisation = project.organisation;
+        const projectId = project.project.metadata.id;
         const branchName = `refs/tags/${element.tagReference.tagName}`;
 
         const pipelines = await requests.getPipelines(organisation, projectId, branchName);
@@ -135,7 +135,7 @@ export class TagTreeItem extends treeView.SemaphoreTreeItem {
     public children: treeView.PipelineTreeItem[] = [];
 
     constructor(
-        public readonly project: types.Project,
+        public readonly project: types.OrganisationProject,
         public readonly tagReference: types.TagReference
     ) {
         super(tagReference.tagName, vscode.TreeItemCollapsibleState.Collapsed);

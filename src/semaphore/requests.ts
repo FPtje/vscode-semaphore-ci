@@ -5,25 +5,25 @@ import * as types from './types';
 import * as apiKey from './apiKey';
 
 /** Get the projects belonging to the list of organisations as configured in the settings. */
-export async function getProjects(organisations: string[]): Promise<types.Project[]> {
-    let promises: Promise<AxiosResponse<types.Project[], any>>[] = [];
+export async function getProjects(organisations: types.Organisation[]): Promise<Map<types.Organisation, types.Project[]>> {
+    let promises: Promise<void>[] = [];
+
+    let organisationProjectMap = new Map<string, types.Project[]>;
 
     organisations.forEach(organisation => {
         let promise = semaphoreGet<types.Project[]>(baseUrl(organisation, ResourceName.projects));
-        promises.push(promise);
+        promises.push(promise.then(response => {
+            organisationProjectMap.set(organisation, response.data);
+        }));
     });
 
-    const responses = await Promise.all(promises);
-    let projects: types.Project[] = [];
-    responses.forEach(response => {
-        projects = projects.concat(response.data);
-    });
+    await Promise.all(promises);
 
-    return projects;
+    return organisationProjectMap;
 };
 
 /** Get the pipelines belonging to a given organisation's project and branch */
-export async function getPipelines(organisation: string, projectId: string, branchName: string):
+export async function getPipelines(organisation: types.Organisation, projectId: string, branchName: string):
     Promise<types.Pipeline[]> {
     const url = baseUrl(organisation, ResourceName.pipelines);
 
@@ -36,7 +36,7 @@ export async function getPipelines(organisation: string, projectId: string, bran
 }
 
 /** The details of a pipeline, which contains data about the blocks and jobs */
-export async function getPipelineDetails(organisation: string, pipelineId: string):
+export async function getPipelineDetails(organisation: types.Organisation, pipelineId: string):
     Promise<types.PipelineDetails> {
     const base = baseUrl(organisation, ResourceName.pipelines);
     const url = `${base}/${pipelineId}`;
@@ -45,7 +45,7 @@ export async function getPipelineDetails(organisation: string, pipelineId: strin
     return response.data;
 }
 
-export async function getJobLogs(organisation: string, jobId: string): Promise<types.JobLog> {
+export async function getJobLogs(organisation: types.Organisation, jobId: string): Promise<types.JobLog> {
     // This base is different, it doesn't have the `api/v1alpha` part
     const base = `https://${organisation}.semaphoreci.com/jobs`;
     const url = `${base}/${jobId}/logs`;
@@ -54,7 +54,7 @@ export async function getJobLogs(organisation: string, jobId: string): Promise<t
     return response.data;
 }
 
-export async function getJobDescription(organisation: string, jobId: string): Promise<types.JobDescription> {
+export async function getJobDescription(organisation: types.Organisation, jobId: string): Promise<types.JobDescription> {
     const base = baseUrl(organisation, ResourceName.jobs);
     const url = `${base}/${jobId}`;
 
@@ -62,7 +62,7 @@ export async function getJobDescription(organisation: string, jobId: string): Pr
     return response.data;
 }
 
-export async function stopJob(organisation: string, jobId: string): Promise<void> {
+export async function stopJob(organisation: types.Organisation, jobId: string): Promise<void> {
     const base = baseUrl(organisation, ResourceName.jobs);
     const url = `${base}/${jobId}/stop`;
 
@@ -70,7 +70,7 @@ export async function stopJob(organisation: string, jobId: string): Promise<void
 }
 
 /** Resubmit a workflow for rerunning */
-export async function rerunWorkflow(organisation: string, workflowId: string): Promise<void> {
+export async function rerunWorkflow(organisation: types.Organisation, workflowId: string): Promise<void> {
     const base = baseUrl(organisation, ResourceName.workflows);
     // Idempotency token (can be any string). Let's set it to an uuid to make sure every call of
     // this function runs the restart. The choice of uuid was informed by the `sem` tool, which also
@@ -83,7 +83,7 @@ export async function rerunWorkflow(organisation: string, workflowId: string): P
 
 /** Getting tags is a little tricky. We need to get an HTML subpage and filter out the tags from
  * there. */
-export async function getTags(organisation: string, projectId: string): Promise<types.TagReference[]> {
+export async function getTags(organisation: types.Organisation, projectId: string): Promise<types.TagReference[]> {
     const url = `https://${organisation}.semaphoreci.com/projects/${projectId}/workflows?type=tag`;
     const response = await semaphoreGet<string>(url);
     const regex = /href="\/branches\/([a-z0-9-]+)"\s*>([^<\s]+)\s*<\/a>/igm;
@@ -106,7 +106,7 @@ enum ResourceName {
     jobs = "jobs",
 };
 
-function baseUrl(organisation: string, resourceName: ResourceName): string {
+function baseUrl(organisation: types.Organisation, resourceName: ResourceName): string {
     return `https://${organisation}.semaphoreci.com/api/v1alpha/${resourceName}`;
 }
 

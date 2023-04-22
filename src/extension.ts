@@ -200,7 +200,7 @@ async function openJobLogs(jobElement: treeView.JobTreeItem) {
         return;
     }
 
-    const organisation = jobElement.parent.project.spec.repository.owner;
+    const organisation = jobElement.parent.project.organisation;
     let uriParameter = '';
 
     // If the job is still running, add a time parameter, to make sure that re-opening the document
@@ -229,7 +229,7 @@ async function stopJob(jobElement: treeView.JobTreeItem) {
         return;
     }
 
-    const organisation = jobElement.parent.project.spec.repository.owner;
+    const organisation = jobElement.parent.project.organisation;
 
     await requests.stopJob(organisation, jobElement.job.job_id);
     const buttonPressed = await vscode.window.showInformationMessage("Semaphore-ci: Stop job submitted", "refresh");
@@ -243,7 +243,7 @@ async function rerunWorkflow(pipelineElement: treeView.PipelineTreeItem) {
         console.warn("Rerun pipeline button pressed, but the element passed is undefined. This is a VS Code bug. Ignoring button press.");
         return;
     }
-    const organisation = pipelineElement.project.spec.repository.owner;
+    const organisation = pipelineElement.project.organisation;
 
     await requests.rerunWorkflow(organisation, pipelineElement.pipeline.wf_id);
     const buttonPressed = await vscode.window.showInformationMessage("Semaphore-ci: Rerun submitted", "refresh");

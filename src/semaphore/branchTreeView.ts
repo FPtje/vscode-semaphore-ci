@@ -89,8 +89,8 @@ export class SemaphoreBranchProvider extends treeView.SemaphoreTreeProvider impl
         if (!project) {
             return [new treeView.NoSuitableProjectTreeItem()];
         }
-        const organisation = project.spec.repository.owner;
-        const projectId = project.metadata.id;
+        const organisation = project.organisation;
+        const projectId = project.project.metadata.id;
 
         const pipelines = await requests.getPipelines(organisation, projectId, element.branch);
 
