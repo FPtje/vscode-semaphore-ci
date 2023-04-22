@@ -7,7 +7,7 @@
 		"type": "git",
 		"url": "https://github.com/FPtje/vscode-semaphore-ci"
 	},
-	"version": "0.5.0",
+	"version": "0.5.1",
 	"engines": {
 		"vscode": "^1.66.0"
 	},
