@@ -125,7 +125,7 @@ async function semaphorePost<T = any>(url: string, params: object = {}):
     const key = await apiKey.getApiKey();
 
     return retryRequest(() => axios.post<T>(
-        url, null, {
+        url, undefined, {
         headers: {
             authorization: `Token ${key}`,
             // eslint-disable-next-line @typescript-eslint/naming-convention
