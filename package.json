@@ -239,7 +239,7 @@
 		"env-paths-ts": "^1.0.1",
 		"format-duration": "^2.0.0",
 		"fs-extra": "^10.1.0",
-		"simple-git": "^3.7.1",
+		"simple-git": ">=3.16.0",
 		"uuid": "^8.3.2"
 	}
 }
