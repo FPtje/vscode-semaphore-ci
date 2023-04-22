@@ -5,6 +5,14 @@ All notable changes to the "semaphoreci" extension will be documented in this fi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.1] -- 23-04-22
+
+### Fixed
+
+- Fixed the "stop job" button not doing anything
+- Fixed error when the GitHub organisation name is different from the Semaphore
+  organisation name. See https://github.com/FPtje/vscode-semaphore-ci/issues/10.
+
 ## [0.5.0] -- 23-01-05
 
 ### Added
