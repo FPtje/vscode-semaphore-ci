@@ -11,3 +11,4 @@ vsc-extension-quickstart.md
 images/logo/icon.svg
 **/*.nix
 flake.lock
+.direnv
