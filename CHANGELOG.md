@@ -5,13 +5,25 @@ All notable changes to the "semaphoreci" extension will be documented in this fi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] -- 24-09-29
+
+### Changed
+
+- When a request to Semaphore CI fails, the error page will now show a URL to the job. This should make it easier to find out more.
+- The timestamp for pipelines is now shown differently:
+  - The timestamp used to be the `created_at` timestamp of the pipeline. Because
+    this is sometimes much earlier than when it is run, it will now take the
+    first available of the following: `running_at`, `queuing_at`, `pending_at`,
+    `created_at`.
+  - When available, the full running time is shown in the format of `yyyy-mm-dd HH:MM-HH:MM`.
+
 ## [0.5.1] -- 23-04-22
 
 ### Fixed
 
 - Fixed the "stop job" button not doing anything
 - Fixed error when the GitHub organisation name is different from the Semaphore
-  organisation name. See https://github.com/FPtje/vscode-semaphore-ci/issues/10.
+  organisation name. See <https://github.com/FPtje/vscode-semaphore-ci/issues/10>.
 
 ## [0.5.0] -- 23-01-05
 
@@ -79,7 +91,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Workaround for buttons not working. See https://github.com/FPtje/vscode-semaphore-ci/issues/5
+- Workaround for buttons not working. See <https://github.com/FPtje/vscode-semaphore-ci/issues/5>
 
 ## [0.1.1] - 22-07-01
 
