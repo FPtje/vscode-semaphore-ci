@@ -45,15 +45,21 @@ export type Repository = {
 export type Workflow = {
     wf_id: string;
     initial_ppl_id: string; // Initial pipeline id
-    created_at: CreatedAt;
+    created_at: SemaphoreTimestamp;
     commit_sha: string;
     branch_name: string;
 };
 
-export type CreatedAt = {
+/** Semaphore timestamp. Note: The NULL timestamp is represented as both seconds and nanos set to 0.
+ * */
+export type SemaphoreTimestamp = {
     seconds: number;
     nanos: number;
 };
+
+export function semaphoreTimestampIsNull(semaphoreTimestamp: SemaphoreTimestamp): boolean {
+    return semaphoreTimestamp.seconds === 0 && semaphoreTimestamp.nanos === 0;
+}
 
 export type Pipeline = {
     /** pipeline id */
@@ -62,9 +68,25 @@ export type Pipeline = {
     wf_id: string;
     state: PipelineState;
     result: PipelineResult;
-    created_at: CreatedAt;
+    created_at: SemaphoreTimestamp;
+    pending_at: SemaphoreTimestamp;
+    queuing_at: SemaphoreTimestamp;
+    running_at: SemaphoreTimestamp;
+    stopping_at: SemaphoreTimestamp;
+    done_at: SemaphoreTimestamp;
     commit_message: string;
 };
+
+/** What is the most representative timestamp of a pipeline? The intuitive answer is `created_at`,
+ * but that is sometimes much earlier than when the pipeline is actually run. This happens, for
+ * example when the pipeline needs to wait in the queue before it is allowed to run.
+ *  */
+export function pipelineRepresentativeTimestamp(pipeline: Pipeline): SemaphoreTimestamp {
+    if (!semaphoreTimestampIsNull(pipeline.running_at)) { return pipeline.running_at; }
+    if (!semaphoreTimestampIsNull(pipeline.queuing_at)) { return pipeline.queuing_at; }
+    if (!semaphoreTimestampIsNull(pipeline.pending_at)) { return pipeline.pending_at; }
+    return pipeline.created_at;
+}
 
 /** The result of requesting an individual pipeline with the query parameter detailed=true */
 export type PipelineDetails = {
@@ -211,4 +233,27 @@ export function formatTime(seconds: number): string {
     const minute = (timestamp.getMinutes()).toString().padStart(2, "0");
 
     return `${timestamp.getFullYear()}-${months}-${days} ${hour}:${minute}`;
+}
+
+export function formatTimeHHMM(seconds: number): string {
+    const timestamp = new Date(seconds * 1000);
+    const hour = (timestamp.getHours()).toString().padStart(2, "0");
+    const minute = (timestamp.getMinutes()).toString().padStart(2, "0");
+
+    return `${hour}:${minute}`;
+}
+
+/** Formats the runtime of a pipeline as "yyyy-mm-dd MM:SS-MM:SS". */
+export function formatPipelineTimeperiod(pipeline: Pipeline): string {
+    const start = formatTime(pipelineRepresentativeTimestamp(pipeline).seconds);
+
+    if (!semaphoreTimestampIsNull(pipeline.done_at)) {
+        return `${start}-${formatTimeHHMM(pipeline.done_at.seconds)}`;
+    }
+
+    if (!semaphoreTimestampIsNull(pipeline.stopping_at)) {
+        return `${start}-${formatTimeHHMM(pipeline.stopping_at.seconds)}`;
+    }
+
+    return start;
 }

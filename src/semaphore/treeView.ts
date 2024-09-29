@@ -195,7 +195,7 @@ export class PipelineTreeItem extends SemaphoreTreeItem {
         public readonly project: types.OrganisationProject,
         public readonly pipeline: types.Pipeline
     ) {
-        const formatted = types.formatTime(pipeline.created_at.seconds);
+        const formatted = types.formatPipelineTimeperiod(pipeline);
 
         super(formatted, vscode.TreeItemCollapsibleState.Collapsed);
 
