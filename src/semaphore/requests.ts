@@ -46,10 +46,8 @@ export async function getPipelineDetails(organisation: types.Organisation, pipel
 }
 
 export async function getJobLogs(organisation: types.Organisation, jobId: string): Promise<types.JobLog> {
-    // This base is different, it doesn't have the `api/v1alpha` part
-    const base = `https://${organisation}.semaphoreci.com/jobs`;
-    const url = `${base}/${jobId}/logs`;
-
+    const base = baseUrl(organisation, ResourceName.logs);
+    const url = `${base}/${jobId}`;
     const response = await semaphoreGet<types.JobLog>(url);
     return response.data;
 }
@@ -113,6 +111,7 @@ enum ResourceName {
     pipelines = "pipelines",
     promotions = "promotions",
     jobs = "jobs",
+    logs = "logs",
 };
 
 function baseUrl(organisation: types.Organisation, resourceName: ResourceName): string {
