@@ -1,0 +1,21 @@
+version: v1.0
+name: Basic semaphore pipeline
+agent:
+  machine:
+    type: e2-standard-2
+
+blocks:
+  - name: Build
+    task:
+      prologue:
+        commands:
+          - sem-version node 22
+      jobs:
+        - name: Compile and bundle
+          commands:
+            - checkout
+            - npm ci
+            - npm run compile
+            - npm run lint
+            - npm run esbuild
+            - npm run test
