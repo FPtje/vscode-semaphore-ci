@@ -82,23 +82,20 @@ export async function rerunWorkflow(organisation: types.Organisation, workflowId
 /** Getting tags is a little tricky. We need to get an HTML subpage and filter out the tags from
  * there. */
 export async function getTags(organisation: types.Organisation, projectId: string): Promise<types.TagReference[]> {
-    const url = `https://${organisation}.semaphoreci.com/projects/${projectId}/workflows?type=tag`;
+    const base = baseUrl(organisation, ResourceName.workflows);
+    const url = `${base}?project_id=${projectId}`;
     let response;
-    try {
-        response = await semaphoreGet<string>(url);
-    } catch (error) {
-        // Semaphore returns 404 if the project doesn't have any tags.
-        if (axios.isAxiosError(error) && error.response?.status === 404) {
-            return [];
-        }
-        throw error;
-    }
-    const regex = /href="\/branches\/([a-z0-9-]+)"\s*>([^<\s]+)\s*<\/a>/igm;
-    const tags = [...response.data.matchAll(regex)];
     let result: types.TagReference[] = [];
+    response = await semaphoreGet<{ branch_name: string, branch_id: string }[]>(url);
+    const tagPrefix = "refs/tags/";
 
-    tags.forEach(tag => {
-        result.push(new types.TagReference(tag[2], tag[1]));
+    response.data.forEach((workflow: { branch_name: string, branch_id: string }) => {
+        if (!workflow.branch_name.startsWith(tagPrefix)) {
+            return;
+        }
+
+        const tagName = workflow.branch_name.substring(tagPrefix.length);
+        result.push(new types.TagReference(tagName, workflow.branch_id));
     });
 
     return result;
