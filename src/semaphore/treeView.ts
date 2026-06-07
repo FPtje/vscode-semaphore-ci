@@ -240,7 +240,7 @@ export class JobTreeItem extends SemaphoreTreeItem {
 }
 
 /** Job status/result to icon */
-function jobToIcon(job: types.Job): { light: string; dark: string; } {
+function jobToIcon(job: types.Job): vscode.IconPath {
     let iconName: string;
 
     switch (job.status) {
@@ -289,7 +289,7 @@ function jobToIcon(job: types.Job): { light: string; dark: string; } {
 
 /** Use the block state and status to produce an icon */
 function blockToIcon(
-    block: types.Block): { light: string; dark: string; } {
+    block: types.Block): vscode.IconPath {
     let iconName: string;
 
     switch (block.state) {
@@ -351,7 +351,7 @@ function blockToIcon(
 /** Pipeline status icon from state and result */
 function stateAndResultToIcon(
     state: types.PipelineState,
-    result: types.PipelineResult | undefined): { light: string; dark: string; } {
+    result: types.PipelineResult | undefined): vscode.IconPath {
     let iconName: string;
 
     switch (state) {
@@ -415,9 +415,10 @@ function stateAndResultToIcon(
 }
 
 /** Helper function to define an icon path */
-function resource(iconName: string): { light: string; dark: string; } {
+function resource(iconName: string): vscode.IconPath {
+    const basePath = path.join(__filename, '..', '..', '..', 'resources');
     return {
-        light: path.join(__filename, '..', '..', '..', 'resources', 'light', iconName),
-        dark: path.join(__filename, '..', '..', '..', 'resources', 'dark', iconName)
+        light: vscode.Uri.file(path.join(basePath, 'light', iconName)),
+        dark: vscode.Uri.file(path.join(basePath, 'dark', iconName))
     };
 }
