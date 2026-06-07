@@ -107,10 +107,12 @@
 		"views": {
 			"semaphore-ci": [
 				{
+					"icon": "resources/dark/branch.svg",
 					"id": "semaphore-ci-current-branch",
 					"name": "Current branch"
 				},
 				{
+					"icon": "resources/dark/tag.svg",
 					"id": "semaphore-ci-tags",
 					"name": "Tags"
 				}
