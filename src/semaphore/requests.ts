@@ -85,7 +85,16 @@ export async function rerunWorkflow(organisation: types.Organisation, workflowId
  * there. */
 export async function getTags(organisation: types.Organisation, projectId: string): Promise<types.TagReference[]> {
     const url = `https://${organisation}.semaphoreci.com/projects/${projectId}/workflows?type=tag`;
-    const response = await semaphoreGet<string>(url);
+    let response;
+    try {
+        response = await semaphoreGet<string>(url);
+    } catch (error) {
+        // Semaphore returns 404 if the project doesn't have any tags.
+        if (axios.isAxiosError(error) && error.response?.status === 404) {
+            return [];
+        }
+        throw error;
+    }
     const regex = /href="\/branches\/([a-z0-9-]+)"\s*>([^<\s]+)\s*<\/a>/igm;
     const tags = [...response.data.matchAll(regex)];
     let result: types.TagReference[] = [];
