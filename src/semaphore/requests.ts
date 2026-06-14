@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import * as types from './types';
 import * as apiKey from './apiKey';
+import { Workflow } from './types';
 
 /** Get the projects belonging to the list of organisations as configured in the settings. */
 export async function getProjects(organisations: types.Organisation[]): Promise<Map<types.Organisation, types.Project[]>> {
@@ -83,13 +84,18 @@ export async function rerunWorkflow(organisation: types.Organisation, workflowId
  * there. */
 export async function getTags(organisation: types.Organisation, projectId: string): Promise<types.TagReference[]> {
     const base = baseUrl(organisation, ResourceName.workflows);
-    const url = `${base}?project_id=${projectId}`;
+    // Passing the git_ref_type and type does not actually have effect. After some research, I found
+    // that either of these _should_ at some point work. However, the API seems to ignore them. The
+    // only way to get the tags is to get all workflows and filter out the tags.
+    //
+    // If this is ever fixed, this code _should_ automatically Just Work
+    const url = `${base}?project_id=${projectId}&git_ref_type=tag&type=tag`;
     let response;
     let result: types.TagReference[] = [];
-    response = await semaphoreGet<{ branch_name: string, branch_id: string }[]>(url);
+    response = await semaphoreGet<Workflow[]>(url);
     const tagPrefix = "refs/tags/";
 
-    response.data.forEach((workflow: { branch_name: string, branch_id: string }) => {
+    response.data.forEach((workflow: Workflow) => {
         if (!workflow.branch_name.startsWith(tagPrefix)) {
             return;
         }
@@ -121,7 +127,16 @@ async function semaphoreGet<T = any>(url: string, params: object = {}):
 
     return retryRequest(() => axios.get<T>(
         url,
-        { headers: { authorization: `Token ${key}` }, params: params })
+        {
+            headers: {
+                authorization: `Token ${key}`,
+                // eslint-disable-next-line @typescript-eslint/naming-convention
+                "Content-Type": "application/json",
+                // eslint-disable-next-line @typescript-eslint/naming-convention
+                "User-Agent": "SemaphoreCI v2.0 Client"
+            },
+            params: params
+        })
     );
 };
 

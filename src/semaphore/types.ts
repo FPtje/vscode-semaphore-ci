@@ -48,6 +48,7 @@ export type Workflow = {
     created_at: SemaphoreTimestamp;
     commit_sha: string;
     branch_name: string;
+    branch_id: string;
 };
 
 /** Semaphore timestamp. Note: The NULL timestamp is represented as both seconds and nanos set to 0.
