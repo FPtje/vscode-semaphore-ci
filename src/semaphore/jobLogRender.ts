@@ -182,23 +182,30 @@ type CommandFormat = {
 
 function renderJobDescription(organisation: string, jobDescription: types.JobDescription): string {
     const startTime = parseInt(jobDescription.metadata.start_time, 10);
-    let rendered = [
-        `# ${jobDescription.metadata.name}`,
-        "",
-        `Job id: ${jobDescription.metadata.id}`,
-        `URL: https://${organisation}.semaphoreci.com/jobs/${jobDescription.metadata.id}`,
-        `Started: ${types.formatTime(startTime)}`,
+    const rows: [string, string][] = [
+        ["Job id", jobDescription.metadata.id],
+        ["URL", `https://${organisation}.semaphoreci.com/jobs/${jobDescription.metadata.id}`],
+        ["Started", types.formatTime(startTime)],
     ];
 
     if (jobDescription.status.state === types.JobStatus.finished) {
         const finishTime = parseInt(jobDescription.metadata.finish_time || "0", 10);
-        rendered.push(`Finished: ${types.formatTime(finishTime)}`);
-        rendered.push(`Job duration: ${formatDuration(1000 * (finishTime - startTime))}`);
+        rows.push(["Finished", types.formatTime(finishTime)]);
+        rows.push(["Job duration", formatDuration(1000 * (finishTime - startTime))]);
     } else {
-        rendered.push("Still ongoing");
+        rows.push(["Status", "Still ongoing"]);
     }
 
-    return rendered.join("\n");
+    const maxKeyLength = Math.max(...rows.map(([k]) => k.length));
+    const tableRows = rows.map(([k, v]) => `${k.padEnd(maxKeyLength)} | ${v}`);
+
+    return [
+        `# ${jobDescription.metadata.name}`,
+        "",
+        tableRows[0],
+        `${"-".repeat(maxKeyLength)} | ${"-".repeat(5)}`,
+        ...tableRows.slice(1),
+    ].join("\n");
 }
 
 /** Render the top n command durations. Used to see which commands took the most time. */
