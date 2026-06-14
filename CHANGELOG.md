@@ -5,6 +5,23 @@ All notable changes to the "semaphoreci" extension will be documented in this fi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.2] -- 26-06-14
+
+### Added
+
+- Icons for pipelines, blocks and jobs in the Semaphore tree view.
+
+### Changed
+
+- Job summary (job id, URL, timestamps, duration) is now displayed as a table.
+
+### Fixed
+
+- Fixed 404 error when fetching job logs.
+- Fixed tags not being found at all due to endpoint being removed.
+  - Note: the current solution just gets all workflows and filters tags, which means you will not see _many_ tags.
+- Fixed "request failed" error when a project has no tags.
+
 ## [0.6.1] -- 24-09-29
 
 ### Fixed
